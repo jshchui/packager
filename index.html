@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Packager V6</title>
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body onload="ping()">
+    <div class="container">
+        <h1>Packager V6 (Integrating Screenshot)</h1>
+        <div class="banner_path_container" id="banner_path_container">
+          <button class="path_to_banners_button" type="button" onclick="setBannerPath()">Set Banner Path</button>
+          <p id="path_to_banners" class="path_to_banners">Path to banners not set</p>
+        </div>
+        <div class="button_container">
+          <button type="button" onclick="doMinify()">Minify JS and CSS</button>
+          <button type="button" onclick="doRename()">Remove Versions</button>
+          <button type="button" onclick="doKrakenPngs()">Kraken PNGs</button>
+          <button type="button" onclick="doOpenIndex()">Open Index</button>
+        </div>
+
+        <p id="log" class="log"></p>
+    </div>
+
+    <!-- You can also require other files to run in this process -->
+    <script src="./renderer.js"></script>
+    <script src="./node_modules/socket.io-client/dist/socket.io.js"></script>
+
+    <script>
+      var socket = io('http://localhost:3000');
+      const {dialog, ipcRenderer} = require('electron')
+      // var ipcRenderer = require('electron').ipcRenderer;
+
+      ipcRenderer.on('path-data', function (event,path) {
+          const filePath = path && path.filePaths && path.filePaths[0]          
+          if(filePath) ping(filePath)
+      });
+
+      socket.on('minify complete', (msg) => {
+        console.log("RESPONSE FROM MINIFY FUNCTION")
+        console.log('msg: ', msg)
+        document.getElementById('log').innerHTML = `Response: ${msg}`;
+      })
+
+      socket.on('rename complete', (msg) => {
+        console.log("RESPONSE FROM RENAME FUNCTION")
+        console.log('msg: ', msg)
+        document.getElementById('log').innerHTML = `Response: ${msg}`;
+      })
+
+      socket.on('kraken complete', (msg) => {
+        console.log("RESPONSE FROM KRAKEN FUNCTION")
+        console.log('msg: ', msg)
+        const krakenResponse = msg && msg.message;
+        const errors = msg && msg.errors;
+
+        if (errors) console.log('errors: ', errors)
+        document.getElementById('log').innerHTML = `Response: ${krakenResponse}`;
+      })
+
+      function setBannerPath() {
+        console.log('set Banner Path pressed')
+        ipcRenderer.send('selectBannerPath', 'dummyData')
+      }
+
+      ping = async (bannersPath) => {
+        console.log('pinging backend')
+        console.log('bannersPath: ', bannersPath)
+        const response = await fetch(`http://localhost:3000/api/ping`, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'}, 
+          body: JSON.stringify({"path": bannersPath}) 
+        })
+        const message = await response.json()
+        console.log('message from backend: ', message);
+
+        const responseMessage = message;
+        document.getElementById('log').innerHTML = `Response: ${responseMessage.message}`;
+
+        if(responseMessage && responseMessage.pathToBanners) {
+          console.log('setting up path to banners')
+          document.getElementById('path_to_banners').innerHTML = `Path to banners: ${responseMessage.pathToBanners}`;
+        }
+      }
+
+      doMinify = async () => {
+        console.log('minifying');
+        const response = await fetch(`http://localhost:3000/api/minify`)
+        const message = await response.json()
+        console.log('message from backend: ', message);
+        const responseMessage = message;
+        document.getElementById('log').innerHTML = `Response: ${responseMessage.message}`;
+      }
+
+      doRename = async () => {
+        console.log('renaming files');
+        const response = await fetch(`http://localhost:3000/api/renameFiles`)
+        const message = await response.json()
+        console.log('message from backend: ', message);
+        const responseMessage = message;
+        document.getElementById('log').innerHTML = `Response: ${responseMessage.message}`;
+      }
+
+      doKrakenPngs = async () => {
+        console.log('krakening');
+        const response = await fetch(`http://localhost:3000/api/krakenPngs`)
+        const message = await response.json()
+        console.log('message from backend: ', message);
+        const responseMessage = message;
+        document.getElementById('log').innerHTML = `Response: ${responseMessage.message}`;
+      }
+
+      doOpenIndex = async () => {
+        console.log('krakening');
+        const response = await fetch(`http://localhost:3000/api/openIndex`)
+        const message = await response.json()
+        console.log('message from backend: ', message);
+        const responseMessage = message;
+        document.getElementById('log').innerHTML = `Response: ${responseMessage.message}`;
+      }
+    </script>
+  </body>
+</html>
