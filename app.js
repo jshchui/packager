@@ -133,37 +133,7 @@ const html2canvas = require("html2canvas");
   module.exports = app;
 })();
 
-function newWindow(path) {
-  // IFRAME
-  // var iframe = document.createElement("iframe");
-  // // iframe.style.display = "none";
-  // iframe.src = path;
-  // iframe.width = "970";
-  // iframe.height = "250";
-
-  // iframe.onload = () => {
-  //   const imagesInBanner = [
-  //     ...iframe.contentDocument.getElementsByTagName("img")
-  //   ];
-  //   const imagesBannerSource = [];
-  //   console.log("images: ", imagesInBanner);
-
-  //   for (let i = 0; i < imagesInBanner.length; i++) {
-  //     imagesBannerSource.push(imagesInBanner[i].src);
-  //     imagesInBanner[i].setAttribute("src", imagesInBanner[i].src);
-  //   }
-
-  //   console.log("iframecontentDOcuemnt: ", iframe.contentDocument);
-  //   setTimeout(() => {
-  //     html2canvas(iframe.contentDocument.body).then(canvas => {
-  //       document.body.appendChild(canvas);
-  //     });
-  //   }, 2000);
-  // };
-  // document.body.appendChild(iframe);
-
-  //////////////////////////////////////////////
-
+function newWindow(path, adNumber) {
   var win = window.open(path, "_blank", "nodeIntegration=true");
 
   var script = document.createElement("script");
@@ -176,9 +146,17 @@ function newWindow(path) {
   requireScript.setAttribute("data-main", "loadbanner");
 
   win.onload = function() {
+    win.document.head.appendChild(requireScript);
+    win.document.head.appendChild(script);
     console.log("done loading");
     //   win.document.head.innerHTML = '<title>Hi</title></head>';
     // win.document.body.innerHTML = '<body>Sample text</body>';
+
+    // we add a adNum data here so we can use it when we open the ads invidually
+    win.document.body.insertAdjacentHTML(
+      "beforeend",
+      `<span id="adNum">${adNumber}</span>`
+    );
 
     console.log("window.documnent: ", win.document);
     const imagesInBanner = [...win.document.getElementsByTagName("img")];
@@ -190,51 +168,19 @@ function newWindow(path) {
       imagesInBanner[i].setAttribute("src", imagesInBanner[i].src);
     }
 
-    console.log("imagesBannerSouce: ", imagesBannerSource);
-    console.log("win.document.head: ", win.document.head);
-    console.log("requireScript: ", requireScript);
-    console.log("script: ", script);
-
     setTimeout(() => {
-      html2canvas(win.document.body).then(function(canvas) {
-        document.body.appendChild(canvas);
-        console.log("picture taken");
-      });
-    }, 3000);
+      const screenshot = win.document.getElementById(
+        `myScreenshot_${adNumber}`
+      );
+      document.body.appendChild(screenshot);
+    }, 12000);
 
-    // document.body.appendChild(win.document);
-    win.document.body.appendChild(requireScript);
-    win.document.body.appendChild(script);
+    // win.document.body.appendChild(requireScript);
+    // win.document.body.appendChild(script);
   };
-
-  ////////////////////////////////////
-  // WIN TEST
-
-  // var script = document.createElement("script");
-  // script.src = "./loadbanner.js";
-  // script.type = "module";
-
-  // var requireScript = document.createElement("script");
-  // requireScript.src = "./require.js";
-  // requireScript.setAttribute("data-main", "loadbanner");
-
-  // var winTest = window.open("", "_blank", "nodeIntegration=true");
-  // winTest.document.write("<h1>Hello</h1>");
-  // winTest.document.head.innerHTML = "<title>Hi</title></head>";
-  // winTest.document.body.innerHTML = "<body>Sample text</body>";
-
-  // winTest.onload = function() {
-  //   console.log("WINTEST LOADED");
-  //   html2canvas(win.document.body).then(function(canvas) {
-  //     document.body.appendChild(canvas);
-  //     console.log("taking picture on winTest");
-  //   });
-  // };
-
-  // winTest.document.head.appendChild(requireScript);
-  // winTest.document.head.appendChild(script);
 }
 
+let adNumber = 0;
 function openIndex(path) {
   fs.readdir(path, (err, files) => {
     for (const file of files) {
@@ -247,34 +193,8 @@ function openIndex(path) {
         } else if (fileExtension === "html") {
           console.log(`html file: ${file}, path: ${currentPath}`);
 
-          newWindow(currentPath);
-          // var bannerWindow = window.open(
-          //     currentPath,
-          //     `${path}` // <- This is what makes it open in a new window.
-          // )
-
-          // bannerWindow.onload = function(){
-          //     // oNewWindow.window.newWindowFunction();
-          //     console.log('new window finished loading')
-          //     // bannerWindow.document.write("<p>This is 'myWindow'</p>");
-          //     bannerWindow.alert('it os done')
-          // };
-
-          // bannerWindow.focus();
-
-          // bannerWindow.addEventListener('load', function() {
-          //     console.log('loading another window successful!')
-          //     bannerWindow.alert('woo hoo')
-          // }, true)
-
-          // console.log('banner window: ', bannerWindow)
-
-          // html2canvas(document.body).then(function(canvas) {
-          //     console.log('apprending canvas')
-          //     document.body.appendChild(canvas);
-          // });
-
-          console.log("done opening");
+          newWindow(currentPath, adNumber);
+          adNumber++;
         }
       });
     }

@@ -4,19 +4,25 @@
 // const html2canvas = require('html2canvas');
 
 console.log("loading banner");
-alert("js is running");
 
 // requirejs(["./node_modules/html2canvas/dist/html2canvas.js"], function(
+
+console.log("requireJS: ", requirejs);
+
 requirejs(
   [
     "C:\\Users\\Jack\\Desktop\\Packagers\\V6dTransfer\\node_modules\\html2canvas\\dist\\html2canvas.js"
   ],
   function(html2canvas) {
     setTimeout(() => {
-      html2canvas(document.body).then(function(canvas) {
+      html2canvas(document.getElementById("outer_wrapper")).then(function(
+        canvas
+      ) {
+        const adNum = document.getElementById("adNum").innerHTML;
         console.log("apprending canvas");
+        canvas.id = `myScreenshot_${adNum}`;
         document.body.appendChild(canvas);
       });
-    }, 2000);
+    }, 10000);
   }
 );
