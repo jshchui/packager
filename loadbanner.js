@@ -3,16 +3,10 @@
 // import html2canvas from '.node_modules/html2canvas';
 // const html2canvas = require('html2canvas');
 
-console.log("loading banner");
-
-// requirejs(["./node_modules/html2canvas/dist/html2canvas.js"], function(
-
-console.log("requireJS: ", requirejs);
+const currentDirectory = document.getElementById("directory").innerHTML;
 
 requirejs(
-  [
-    "C:\\Users\\Jack\\Desktop\\Packagers\\V6dTransfer\\node_modules\\html2canvas\\dist\\html2canvas.js"
-  ],
+  [`${currentDirectory}\\node_modules\\html2canvas\\dist\\html2canvas.js`],
   function(html2canvas) {
     setTimeout(() => {
       html2canvas(document.getElementById("outer_wrapper")).then(function(
@@ -23,6 +17,8 @@ requirejs(
         canvas.id = `myScreenshot_${adNum}`;
         document.body.appendChild(canvas);
       });
-    }, 10000);
+    }, 2000);
   }
 );
+
+tl.timeScale(50);

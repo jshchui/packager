@@ -136,32 +136,41 @@ const html2canvas = require("html2canvas");
 function newWindow(path, adNumber) {
   var win = window.open(path, "_blank", "nodeIntegration=true");
 
+  var requireScript = document.createElement("script");
+  // requireScript.src = `C:\\Users\\Jack\\Desktop\\Packagers\\V6dTransfer\\require.js`;
+  requireScript.src = `${__dirname}\\require.js`;
+  // requireScript.setAttribute("data-main", "loadbanner");
+
   var script = document.createElement("script");
-  script.src = `${__dirname}/loadbanner.js`;
+  script.src = `${__dirname}\\loadbanner.js`;
   script.type = "module";
 
-  var requireScript = document.createElement("script");
-  requireScript.src = `C:\\Users\\Jack\\Desktop\\Packagers\\V6dTransfer\\require.js`;
-  // requireScript.src = `${__dirname}/require.js`;
-  requireScript.setAttribute("data-main", "loadbanner");
-
   win.onload = function() {
-    win.document.head.appendChild(requireScript);
-    win.document.head.appendChild(script);
-    console.log("done loading");
+    try {
+      console.log("try");
+      win.document.body.appendChild(requireScript);
+      win.document.body.appendChild(script);
+    } catch (e) {
+      console.log("catch e: ", e);
+      win.document.body.appendChild(requireScript);
+      win.document.body.appendChild(script);
+    }
+
+    // win.document.head.appendChild(script);
+    // win.document.head.appendChild(requireScript);
     //   win.document.head.innerHTML = '<title>Hi</title></head>';
     // win.document.body.innerHTML = '<body>Sample text</body>';
 
     // we add a adNum data here so we can use it when we open the ads invidually
     win.document.body.insertAdjacentHTML(
       "beforeend",
-      `<span id="adNum">${adNumber}</span>`
+      `<span id="adNum">${adNumber}</span>
+      <span id="directory">${__dirname}</span>
+      `
     );
 
-    console.log("window.documnent: ", win.document);
     const imagesInBanner = [...win.document.getElementsByTagName("img")];
     const imagesBannerSource = [];
-    console.log("images: ", imagesInBanner);
 
     for (let i = 0; i < imagesInBanner.length; i++) {
       imagesBannerSource.push(imagesInBanner[i].src);
@@ -181,18 +190,22 @@ function newWindow(path, adNumber) {
 
         var imageData = img.src.replace(/^data:image\/(png|jpg);base64,/, "");
 
-        fs.writeFile(`./image_${adNumber}.jpg`, imageData, "base64", function(
-          err
-        ) {
-          console.log("err: ", err);
-        });
+        fs.writeFile(
+          `./backups/image_${adNumber}.jpg`,
+          imageData,
+          "base64",
+          function(err) {
+            console.log("err: ", err);
+          }
+        );
 
         document.body.appendChild(screenshot);
         document.body.appendChild(img);
+        win.close();
       } else {
         console.log("no screenshot");
       }
-    }, 12000);
+    }, 4000);
 
     // win.document.body.appendChild(requireScript);
     // win.document.body.appendChild(script);
