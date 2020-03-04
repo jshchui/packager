@@ -172,7 +172,26 @@ function newWindow(path, adNumber) {
       const screenshot = win.document.getElementById(
         `myScreenshot_${adNumber}`
       );
-      document.body.appendChild(screenshot);
+
+      console.log("screenshot: ", screenshot);
+
+      if (screenshot) {
+        var img = new Image();
+        img.src = screenshot.toDataURL("image/jpg");
+
+        var imageData = img.src.replace(/^data:image\/(png|jpg);base64,/, "");
+
+        fs.writeFile(`./image_${adNumber}.jpg`, imageData, "base64", function(
+          err
+        ) {
+          console.log("err: ", err);
+        });
+
+        document.body.appendChild(screenshot);
+        document.body.appendChild(img);
+      } else {
+        console.log("no screenshot");
+      }
     }, 12000);
 
     // win.document.body.appendChild(requireScript);
