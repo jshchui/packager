@@ -185,31 +185,50 @@ function newWindow(path, adNumber) {
       console.log("screenshot: ", screenshot);
       const screenshotGetContext = screenshot.getContext("2d");
       console.log("screenshotGetContext: ", screenshotGetContext);
+
+      let quality = 100;
       if (screenshot) {
         var img = new Image();
         img.src = screenshot.toDataURL("image/jpg");
 
         var imageData = img.src.replace(/^data:image\/(png|jpg);base64,/, "");
         console.log("screenshot.height: ", screenshot.height);
-        const newImg = downloadAsJPG(
+        let newImg = downloadAsJPG(
           screenshotGetContext,
-          10,
+          quality,
           screenshot.width,
           screenshot.height,
           "black"
         );
+        console.log("quality before: ", quality);
+
+        while (newImg.blob.size > 40000) {
+          console.log("blob size exceeded: ", newImg.blob.size);
+          if (newImg.blob.size > 50000) {
+            quality -= 5;
+          } else {
+            quality -= 2;
+          }
+          newImg = downloadAsJPG(
+            screenshotGetContext,
+            quality,
+            screenshot.width,
+            screenshot.height,
+            "black"
+          );
+        }
+
+        console.log("quality: ", quality);
 
         // convert blob back to base64data
         var reader = new FileReader();
         reader.readAsDataURL(newImg.blob);
         reader.onloadend = function() {
           var base64data = reader.result;
-          console.log("base64Data: ", typeof base64data);
           var baseData = base64data.replace(
             /^data:image\/(png|jpeg);base64,/,
             ""
           );
-          console.log("baseData: ", baseData);
           fs.writeFile(
             `./backups/image_${adNumber}.jpg`,
             baseData,
@@ -234,7 +253,7 @@ function newWindow(path, adNumber) {
         // document.body.appendChild(img);
         // win.close();
       } else {
-        console.log("no screenshot");
+        console.log("no screenshot exists");
       }
     }, 4000);
 
@@ -1245,7 +1264,6 @@ function createBlob(ctx, quality, w, h) {
   var imgData = ctx.getImageData(0, 0, w, h);
   var encoder = new JPEGEncoder(quality);
   var jpegURI = encoder.encode(imgData, quality, true);
-  console.log("jpeg URI: ", jpegURI);
   var blob = new Blob([jpegURI.buffer], {
     type: "image/jpeg"
   });
@@ -1295,4 +1313,9 @@ function downloadAsJPG(ctx, quality, w, h, borderColor) {
   //   cancelable: true
   // });
   // link.dispatchEvent(evt);
+}
+
+function updateSize(bannerCTX, quality, w, h) {
+  var size = createBlob(bannerCTX, quality, w, h).size;
+  return size;
 }
