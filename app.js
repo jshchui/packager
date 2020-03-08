@@ -136,9 +136,10 @@ const html2canvas = require("html2canvas");
 function newWindow(path, adNumber) {
   var win = window.open(path, "_blank", "nodeIntegration=true");
 
+  // might not need this anymore
   var requireScript = document.createElement("script");
-  // requireScript.src = `C:\\Users\\Jack\\Desktop\\Packagers\\V6dTransfer\\require.js`;
   requireScript.src = `${__dirname}\\require.js`;
+  // requireScript.src = `C:\\Users\\Jack\\Desktop\\Packagers\\V6dTransfer\\require.js`;
   // requireScript.setAttribute("data-main", "loadbanner");
 
   var script = document.createElement("script");
@@ -148,11 +149,11 @@ function newWindow(path, adNumber) {
   win.onload = function() {
     try {
       console.log("try");
-      win.document.body.appendChild(requireScript);
+      // win.document.body.appendChild(requireScript);
       win.document.body.appendChild(script);
     } catch (e) {
       console.log("catch e: ", e);
-      win.document.body.appendChild(requireScript);
+      // win.document.body.appendChild(requireScript);
       win.document.body.appendChild(script);
     }
 
@@ -181,18 +182,13 @@ function newWindow(path, adNumber) {
       const screenshot = win.document.getElementById(
         `myScreenshot_${adNumber}`
       );
-
-      console.log("screenshot: ", screenshot);
       const screenshotGetContext = screenshot.getContext("2d");
-      console.log("screenshotGetContext: ", screenshotGetContext);
-
       let quality = 100;
       if (screenshot) {
         var img = new Image();
         img.src = screenshot.toDataURL("image/jpg");
 
         var imageData = img.src.replace(/^data:image\/(png|jpg);base64,/, "");
-        console.log("screenshot.height: ", screenshot.height);
         let newImg = downloadAsJPG(
           screenshotGetContext,
           quality,
@@ -220,6 +216,9 @@ function newWindow(path, adNumber) {
 
         console.log("quality: ", quality);
 
+        const splitPathArray = path && path.split("/");
+        const splitPathName = splitPathArray[splitPathArray.length - 2];
+
         // convert blob back to base64data
         var reader = new FileReader();
         reader.readAsDataURL(newImg.blob);
@@ -230,7 +229,7 @@ function newWindow(path, adNumber) {
             ""
           );
           fs.writeFile(
-            `./backups/image_${adNumber}.jpg`,
+            `./backups/${splitPathName}_backup.jpg`, // it was `./backups/image_${adNumber}.jpg`, before
             baseData,
             "base64",
             function(err) {
@@ -251,7 +250,7 @@ function newWindow(path, adNumber) {
         // document.body.appendChild(screenshot);
         // document.body.appendChild(newImg);
         // document.body.appendChild(img);
-        // win.close();
+        win.close();
       } else {
         console.log("no screenshot exists");
       }
