@@ -14,9 +14,10 @@ setTimeout(() => {
     canvas.id = `myScreenshot_${adNum}`;
     document.body.appendChild(canvas);
   });
-}, 2000);
+}, 35000);
 
-tl.timeScale(50);
+// tl.timeScale(40);
+// tl.seek(40).pause();
 
 // this just checks if the whole WINDow of the app is in a retina dispaly, not the image
 // so this might need to be changed so that it checks the image instead of the window in the future

@@ -96,7 +96,7 @@ const html2canvas = require("html2canvas");
   });
 
   app.get("/api/openIndex", cors(), async (req, res, next) => {
-    openIndex(pathToBanners);
+    openIndex(pathToBanners, pathToBanners);
     // startCapture(displayMediaOptions);
 
     try {
@@ -133,7 +133,7 @@ const html2canvas = require("html2canvas");
   module.exports = app;
 })();
 
-function newWindow(path, adNumber) {
+function newWindow(path, adNumber, pathToBanners) {
   var win = window.open(path, "_blank", "nodeIntegration=true");
 
   // might not need this anymore
@@ -229,7 +229,7 @@ function newWindow(path, adNumber) {
             ""
           );
           fs.writeFile(
-            `./backups/${splitPathName}_backup.jpg`, // it was `./backups/image_${adNumber}.jpg`, before
+            `${pathToBanners}/00_backups/${splitPathName}_backup.jpg`, // it was `./backups/image_${adNumber}.jpg`, before
             baseData,
             "base64",
             function(err) {
@@ -254,7 +254,7 @@ function newWindow(path, adNumber) {
       } else {
         console.log("no screenshot exists");
       }
-    }, 4000);
+    }, 40000);
 
     // win.document.body.appendChild(requireScript);
     // win.document.body.appendChild(script);
@@ -262,7 +262,8 @@ function newWindow(path, adNumber) {
 }
 
 let adNumber = 0;
-function openIndex(path) {
+// we set another path to banners after path because we want the original path so it can save backups there
+function openIndex(path, pathToBanners) {
   fs.readdir(path, (err, files) => {
     for (const file of files) {
       let currentPath = `${path}/${file}`;
@@ -270,11 +271,11 @@ function openIndex(path) {
 
       fs.lstat(currentPath, (err, stats) => {
         if (stats.isDirectory()) {
-          openIndex(currentPath);
+          openIndex(currentPath, pathToBanners);
         } else if (fileExtension === "html") {
           console.log(`html file: ${file}, path: ${currentPath}`);
 
-          newWindow(currentPath, adNumber);
+          newWindow(currentPath, adNumber, pathToBanners);
           adNumber++;
         }
       });
