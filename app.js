@@ -136,12 +136,6 @@ const html2canvas = require("html2canvas");
 function newWindow(path, adNumber, pathToBanners) {
   var win = window.open(path, "_blank", "nodeIntegration=true");
 
-  // might not need this anymore
-  var requireScript = document.createElement("script");
-  requireScript.src = `${__dirname}\\require.js`;
-  // requireScript.src = `C:\\Users\\Jack\\Desktop\\Packagers\\V6dTransfer\\require.js`;
-  // requireScript.setAttribute("data-main", "loadbanner");
-
   var script = document.createElement("script");
   script.src = `${__dirname}\\loadbanner.js`;
   script.type = "module";
@@ -149,25 +143,16 @@ function newWindow(path, adNumber, pathToBanners) {
   win.onload = function() {
     try {
       console.log("try");
-      // win.document.body.appendChild(requireScript);
       win.document.body.appendChild(script);
     } catch (e) {
       console.log("catch e: ", e);
-      // win.document.body.appendChild(requireScript);
       win.document.body.appendChild(script);
     }
-
-    // win.document.head.appendChild(script);
-    // win.document.head.appendChild(requireScript);
-    //   win.document.head.innerHTML = '<title>Hi</title></head>';
-    // win.document.body.innerHTML = '<body>Sample text</body>';
 
     // we add a adNum data here so we can use it when we open the ads invidually
     win.document.body.insertAdjacentHTML(
       "beforeend",
-      `<span id="adNum">${adNumber}</span>
-      <span id="directory">${__dirname}</span>
-      `
+      `<span id="directory">${__dirname}</span>`
     );
 
     const imagesInBanner = [...win.document.getElementsByTagName("img")];
@@ -178,87 +163,78 @@ function newWindow(path, adNumber, pathToBanners) {
       imagesInBanner[i].setAttribute("src", imagesInBanner[i].src);
     }
 
-    setTimeout(() => {
-      const screenshot = win.document.getElementById(
-        `myScreenshot_${adNumber}`
+    const checkBannerComplete = setInterval(() => {
+      const isBannerFinishedSpan = win.document.getElementById(
+        "bannerFinished"
       );
-      const screenshotGetContext = screenshot.getContext("2d");
-      let quality = 100;
-      if (screenshot) {
-        var img = new Image();
-        img.src = screenshot.toDataURL("image/jpg");
-
-        var imageData = img.src.replace(/^data:image\/(png|jpg);base64,/, "");
-        let newImg = downloadAsJPG(
-          screenshotGetContext,
-          quality,
-          screenshot.width,
-          screenshot.height,
-          "black"
-        );
-        console.log("quality before: ", quality);
-
-        while (newImg.blob.size > 40000) {
-          console.log("blob size exceeded: ", newImg.blob.size);
-          if (newImg.blob.size > 50000) {
-            quality -= 5;
-          } else {
-            quality -= 2;
-          }
-          newImg = downloadAsJPG(
-            screenshotGetContext,
-            quality,
-            screenshot.width,
-            screenshot.height,
-            "black"
-          );
-        }
-
-        console.log("quality: ", quality);
-
-        const splitPathArray = path && path.split("/");
-        const splitPathName = splitPathArray[splitPathArray.length - 2];
-
-        // convert blob back to base64data
-        var reader = new FileReader();
-        reader.readAsDataURL(newImg.blob);
-        reader.onloadend = function() {
-          var base64data = reader.result;
-          var baseData = base64data.replace(
-            /^data:image\/(png|jpeg);base64,/,
-            ""
-          );
-          fs.writeFile(
-            `${pathToBanners}/00_backups/${splitPathName}_backup.jpg`, // it was `./backups/image_${adNumber}.jpg`, before
-            baseData,
-            "base64",
-            function(err) {
-              console.log("err: ", err);
-            }
-          );
-        };
-
-        // fs.writeFile(
-        //   `./backups/image_${adNumber}.jpg`,
-        //   imageData,
-        //   "base64",
-        //   function(err) {
-        //     console.log("err: ", err);
-        //   }
-        // );
-
-        // document.body.appendChild(screenshot);
-        // document.body.appendChild(newImg);
-        // document.body.appendChild(img);
-        win.close();
-      } else {
-        console.log("no screenshot exists");
+      if (isBannerFinishedSpan) {
+        clearInterval(checkBannerComplete);
+        takeScreenshot(win, path, pathToBanners);
       }
-    }, 40000);
-
-    // win.document.body.appendChild(requireScript);
-    // win.document.body.appendChild(script);
+    }, 2000);
   };
+}
+
+function takeScreenshot(win, path, pathToBanners) {
+  console.log("taking screenshot:", win);
+  const screenshot = win.document.getElementById(`myScreenshot`);
+  console.log("screenshot: ", screenshot);
+  const screenshotGetContext = screenshot.getContext("2d");
+  let quality = 100;
+  if (screenshot) {
+    var img = new Image();
+    img.src = screenshot.toDataURL("image/jpg");
+
+    var imageData = img.src.replace(/^data:image\/(png|jpg);base64,/, "");
+    let newImg = downloadAsJPG(
+      screenshotGetContext,
+      quality,
+      screenshot.width,
+      screenshot.height,
+      "black"
+    );
+    console.log("quality before: ", quality);
+
+    while (newImg.blob.size > 40000 && quality > 10) {
+      console.log("blob size exceeded: ", newImg.blob.size);
+      if (newImg.blob.size > 50000) {
+        quality -= 5;
+      } else {
+        quality -= 2;
+      }
+      newImg = downloadAsJPG(
+        screenshotGetContext,
+        quality,
+        screenshot.width,
+        screenshot.height,
+        "black"
+      );
+    }
+
+    console.log("quality: ", quality);
+
+    const splitPathArray = path && path.split("/");
+    const splitPathName = splitPathArray[splitPathArray.length - 2];
+
+    // convert blob back to base64data
+    var reader = new FileReader();
+    reader.readAsDataURL(newImg.blob);
+    reader.onloadend = function() {
+      var base64data = reader.result;
+      var baseData = base64data.replace(/^data:image\/(png|jpeg);base64,/, "");
+      fs.writeFile(
+        `${pathToBanners}/00_backups/${splitPathName}_backup.jpg`, // it was `./backups/image_${adNumber}.jpg`, before
+        baseData,
+        "base64",
+        function(err) {
+          console.log("err: ", err);
+        }
+      );
+    };
+    win.close();
+  } else {
+    console.log("no screenshot exists");
+  }
 }
 
 let adNumber = 0;
