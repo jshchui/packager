@@ -5,6 +5,9 @@ const uglifyjs = require("@node-minify/uglify-js");
 const cssnano = require("@node-minify/cssnano");
 var Kraken = require("kraken");
 
+const renameFiles = require("./modules/renameFiles.js");
+console.log("renameFiles????: ", renameFiles);
+
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
@@ -16,8 +19,6 @@ var kraken = new Kraken({
 
 // we initialize io here so the functions can use it later
 var io;
-
-const html2canvas = require("html2canvas");
 
 (function() {
   "use strict";
@@ -72,7 +73,8 @@ const html2canvas = require("html2canvas");
   });
 
   app.get("/api/renameFiles/", cors(), async (req, res, next) => {
-    renameFiles(pathToBanners);
+    const renameFileValue = await renameFiles(pathToBanners, io);
+    console.log("renameFileValue:", renameFileValue);
 
     try {
       const test = "renaming of files was initiated";
@@ -388,95 +390,6 @@ async function krakenPngs(path) {
       });
     }
   });
-}
-
-let foldersAndFilesToRename = 0;
-let foldersRenamed = 0;
-let filesRenamed = 0;
-function renameFiles(path) {
-  let regex = /_v[0-9][0-9]|_v[0-9]/g;
-
-  fs.readdir(path, (err, files) => {
-    for (const file of files) {
-      let upOnePath = `${path}`;
-      let currentPath = `${path}/${file}`;
-
-      fs.lstat(currentPath, (err, stats) => {
-        if (err) return console.log(err);
-
-        if (stats.isDirectory()) {
-          if (regex.test(file)) {
-            foldersAndFilesToRename++;
-            console.log(
-              "Detected Folder that needs renaming, foldersAndFilesToRename: ",
-              foldersAndFilesToRename
-            );
-
-            let currentFileName = file;
-            let newFileName = currentFileName.replace(regex, "");
-            fs.rename(currentPath, `${upOnePath}/${newFileName}`, err => {
-              if (err) throw err;
-              foldersRenamed++;
-              foldersAndFilesToRename--;
-              console.log(
-                "file renamed, foldersAndFilesToRename: ",
-                foldersAndFilesToRename
-              );
-              // console.log(`"${file}" changed to "${newFileName}"`);
-
-              if (foldersAndFilesToRename === 0) {
-                io.emit(
-                  "rename complete",
-                  `Renaming Completed! Folders Renamed: ${foldersRenamed}, Files Renamed: ${filesRenamed}`
-                );
-                foldersAndFilesToRename = 0;
-                foldersRenamed = 0;
-                filesRenamed = 0;
-              }
-            });
-          } else {
-            renameFiles(currentPath);
-          }
-        } else if (stats.isFile()) {
-          if (regex.test(file)) {
-            foldersAndFilesToRename++;
-            console.log(
-              "Detected File that needs renaming, foldersAndFilesToRename: ",
-              foldersAndFilesToRename
-            );
-
-            let currentFileName = file;
-            let newFileName = currentFileName.replace(regex, "");
-            fs.rename(currentPath, `${upOnePath}/${newFileName}`, err => {
-              if (err) throw err;
-              filesRenamed++;
-              foldersAndFilesToRename--;
-              console.log(
-                "file renamed, foldersAndFilesToRename: ",
-                foldersAndFilesToRename
-              );
-              // console.log(`"${file}" changed to "${newFileName}"`);
-
-              if (foldersAndFilesToRename === 0) {
-                io.emit(
-                  "rename complete",
-                  `Renaming Completed! Folders Renamed: ${foldersRenamed}, Files Renamed: ${filesRenamed}`
-                );
-                foldersAndFilesToRename = 0;
-                foldersRenamed = 0;
-                filesRenamed = 0;
-              }
-            });
-          } else {
-            // console.log(`"${file}" is unchanged`);
-          }
-        }
-      });
-    }
-  });
-
-  // console.log('I should be after most if not ALL of stuff')
-  // return `Folders Renamed: ${foldersRenamed}, Files Renamed: ${filesRenamed}, Notes: ${(foldersAndFilesToRename === 0) ? 'Process Successful' : `Error occured, files and folders to rename is ${foldersAndFilesToRename} instead of 0`}`
 }
 
 function download(url, dest) {
