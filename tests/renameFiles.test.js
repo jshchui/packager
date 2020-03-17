@@ -13,12 +13,11 @@ const fs = require("fs");
 // prettier-ignore
 test("looping through path", async () => {
   const data = await fs.readdir(__dirname, async (err, files) => {
-    await console.log('files: ', files)
-    return files;
+    expect(files).toEqual(["mock.js", "renameFiles.test.js", "sum.js"])
+    // await console.log('files: ', files)
   })
-  const spy = jest.spyOn(console, "log");
 
-  expect(console.log).toBe("helo")
+  // expect(console.log).toBe("helo")
 });
 
 // test("rename files", () => {
