@@ -6,6 +6,8 @@ const renameFiles = (path, io) => {
   let foldersRenamed = 0;
   let filesRenamed = 0;
 
+  console.log("path: ", path);
+
   fs.readdir(path, (err, files) => {
     for (const file of files) {
       let upOnePath = `${path}`;
