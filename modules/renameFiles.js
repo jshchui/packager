@@ -5,9 +5,7 @@ const renameFiles = (path, io) => {
   let foldersAndFilesToRename = 0;
   let foldersRenamed = 0;
   let filesRenamed = 0;
-
-  console.log("path: ", path);
-
+  
   fs.readdir(path, (err, files) => {
     for (const file of files) {
       let upOnePath = `${path}`;
@@ -19,10 +17,10 @@ const renameFiles = (path, io) => {
         if (stats.isDirectory()) {
           if (regex.test(file)) {
             foldersAndFilesToRename++;
-            console.log(
-              "Detected Folder that needs renaming, foldersAndFilesToRename: ",
-              foldersAndFilesToRename
-            );
+            // console.log(
+            //   "Detected Folder that needs renaming, foldersAndFilesToRename: ",
+            //   foldersAndFilesToRename
+            // );
 
             let currentFileName = file;
             let newFileName = currentFileName.replace(regex, "");
@@ -30,17 +28,19 @@ const renameFiles = (path, io) => {
               if (err) throw err;
               foldersRenamed++;
               foldersAndFilesToRename--;
-              console.log(
-                "file renamed, foldersAndFilesToRename: ",
-                foldersAndFilesToRename
-              );
+              // console.log(
+              //   "file renamed, foldersAndFilesToRename: ",
+              //   foldersAndFilesToRename
+              // );
               // console.log(`"${file}" changed to "${newFileName}"`);
 
               if (foldersAndFilesToRename === 0) {
-                io.emit(
-                  "rename complete",
-                  `Renaming Completed! Folders Renamed: ${foldersRenamed}, Files Renamed: ${filesRenamed}`
-                );
+                if(io) {
+                  io.emit(
+                    "rename complete",
+                    `Renaming Completed! Folders Renamed: ${foldersRenamed}, Files Renamed: ${filesRenamed}`
+                  );
+                }
                 foldersAndFilesToRename = 0;
                 foldersRenamed = 0;
                 filesRenamed = 0;
@@ -52,10 +52,10 @@ const renameFiles = (path, io) => {
         } else if (stats.isFile()) {
           if (regex.test(file)) {
             foldersAndFilesToRename++;
-            console.log(
-              "Detected File that needs renaming, foldersAndFilesToRename: ",
-              foldersAndFilesToRename
-            );
+            // console.log(
+            //   "Detected File that needs renaming, foldersAndFilesToRename: ",
+            //   foldersAndFilesToRename
+            // );
 
             let currentFileName = file;
             let newFileName = currentFileName.replace(regex, "");
@@ -63,17 +63,19 @@ const renameFiles = (path, io) => {
               if (err) throw err;
               filesRenamed++;
               foldersAndFilesToRename--;
-              console.log(
-                "file renamed, foldersAndFilesToRename: ",
-                foldersAndFilesToRename
-              );
+              // console.log(
+              //   "file renamed, foldersAndFilesToRename: ",
+              //   foldersAndFilesToRename
+              // );
               // console.log(`"${file}" changed to "${newFileName}"`);
 
               if (foldersAndFilesToRename === 0) {
-                io.emit(
-                  "rename complete",
-                  `Renaming Completed! Folders Renamed: ${foldersRenamed}, Files Renamed: ${filesRenamed}`
-                );
+                if(io) {
+                  io.emit(
+                    "rename complete",
+                    `Renaming Completed! Folders Renamed: ${foldersRenamed}, Files Renamed: ${filesRenamed}`
+                  );
+                }
                 foldersAndFilesToRename = 0;
                 foldersRenamed = 0;
                 filesRenamed = 0;
