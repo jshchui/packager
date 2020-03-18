@@ -135,7 +135,7 @@ var io;
   module.exports = app;
 })();
 
-function newWindow(path, adNumber, pathToBanners) {
+function newWindow(path, pathToBanners) {
   var win = window.open(path, "_blank", "nodeIntegration=true");
 
   var script = document.createElement("script");
@@ -195,10 +195,10 @@ function takeScreenshot(win, path, pathToBanners) {
       screenshot.height,
       "black"
     );
-    console.log("quality before: ", quality);
+    // console.log("quality before: ", quality);
 
     while (newImg.blob.size > 40000 && quality > 10) {
-      console.log("blob size exceeded: ", newImg.blob.size);
+      // console.log("blob size exceeded: ", newImg.blob.size);
       if (newImg.blob.size > 50000) {
         quality -= 5;
       } else {
@@ -239,7 +239,6 @@ function takeScreenshot(win, path, pathToBanners) {
   }
 }
 
-let adNumber = 0;
 // we set another path to banners after path because we want the original path so it can save backups there
 function openIndex(path, pathToBanners) {
   fs.readdir(path, (err, files) => {
@@ -253,8 +252,7 @@ function openIndex(path, pathToBanners) {
         } else if (fileExtension === "html") {
           console.log(`html file: ${file}, path: ${currentPath}`);
 
-          newWindow(currentPath, adNumber, pathToBanners);
-          adNumber++;
+          newWindow(currentPath, pathToBanners);
         }
       });
     }

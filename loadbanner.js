@@ -14,16 +14,14 @@ tl.timeScale(5);
 
 const checkBannerComplete = setInterval(() => {
   if (!tl.isActive()) {
-    document.body.insertAdjacentHTML(
-      "beforeend",
-      `<span id="bannerFinished"></span>`
-    );
-    console.log("bannerFinished clearing interval");
-    clearInterval(checkBannerComplete);
-
     html2canvas(banner).then(function(canvas) {
       canvas.id = `myScreenshot`;
       document.body.appendChild(canvas);
+      document.body.insertAdjacentHTML(
+        "beforeend",
+        `<span id="bannerFinished"></span>`
+      );
+      clearInterval(checkBannerComplete);
     });
   }
 }, 1000);
