@@ -1,9 +1,7 @@
 
-const minifyFiles = require("../modules/minifyFiles.js")
 const fs = require("fs")
-const minify = require("@node-minify/core");
-const uglifyjs = require("@node-minify/uglify-js");
-const cssnano = require("@node-minify/cssnano");
+const minifyFiles = require("../modules/minifyFiles.js")
+
 const testBannerDir = __dirname.replace("/tests", "");
 
 // test("looping through path", async () => {
