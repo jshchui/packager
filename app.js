@@ -1,12 +1,10 @@
 const http = require("https");
 var fs = require("fs");
-const minify = require("@node-minify/core");
-const uglifyjs = require("@node-minify/uglify-js");
-const cssnano = require("@node-minify/cssnano");
 var Kraken = require("kraken");
 
+// Modules
 const renameFiles = require("./modules/renameFiles.js");
-console.log("renameFiles????: ", renameFiles);
+const minifyFiles = require("./modules/minifyFiles.js");
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
@@ -61,7 +59,7 @@ var io;
   });
 
   app.get("/api/minify/", cors(), async (req, res, next) => {
-    minifyFiles(pathToBanners);
+    const minifyFileValue = await minifyFiles(pathToBanners, io);
 
     try {
       const test = "minifying was initiated";
@@ -74,7 +72,6 @@ var io;
 
   app.get("/api/renameFiles/", cors(), async (req, res, next) => {
     const renameFileValue = await renameFiles(pathToBanners, io);
-    console.log("renameFileValue:", renameFileValue);
 
     try {
       const test = "renaming of files was initiated";
@@ -253,66 +250,6 @@ function openIndex(path, pathToBanners) {
           console.log(`html file: ${file}, path: ${currentPath}`);
 
           newWindow(currentPath, pathToBanners);
-        }
-      });
-    }
-  });
-}
-
-let numFilesToMinify = 0;
-function minifyFiles(path) {
-  fs.readdir(path, (err, files) => {
-    for (const file of files) {
-      let currentPath = `${path}/${file}`;
-      let fileExtension = file.split(".").pop();
-
-      if (fileExtension === "js" || fileExtension === "css") {
-        numFilesToMinify++;
-        console.log(`${fileExtension}, numFilesToMinify: `, numFilesToMinify);
-      }
-
-      fs.lstat(currentPath, (err, stats) => {
-        if (err) return console.log(err);
-        if (stats.isDirectory()) {
-          minifyFiles(currentPath);
-        } else if (fileExtension === "js") {
-          minify({
-            compressor: uglifyjs,
-            input: `${currentPath}`,
-            output: `${currentPath}`,
-            callback: function(err, min) {
-              if (err) console.log("err: ", err);
-              numFilesToMinify--;
-              console.log(
-                "minifying JS completed, files left: ",
-                numFilesToMinify
-              );
-              if (numFilesToMinify === 0) {
-                io.emit("minify complete", "Minifying is completed!");
-                numFilesToMinify = 0;
-              }
-              // if(min) console.log('min: ', min);
-            }
-          });
-        } else if (fileExtension === "css") {
-          minify({
-            compressor: cssnano,
-            input: `${currentPath}`,
-            output: `${currentPath}`,
-            callback: function(err, min) {
-              if (err) console.log("err: ", err);
-              numFilesToMinify--;
-              console.log(
-                "minifying CSS completed, files left: ",
-                numFilesToMinify
-              );
-              if (numFilesToMinify === 0) {
-                io.emit("minify complete", "Minifying is completed!");
-                numFilesToMinify = 0;
-              }
-              // if(min) console.log('min: ', min);
-            }
-          });
         }
       });
     }

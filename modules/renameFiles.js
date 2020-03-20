@@ -47,7 +47,7 @@ const renameFiles = (path, io) => {
               }
             });
           } else {
-            renameFiles(currentPath);
+            renameFiles(currentPath, io);
           }
         } else if (stats.isFile()) {
           if (regex.test(file)) {
