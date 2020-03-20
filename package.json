@@ -21,8 +21,8 @@
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "^7.0.0",
-    "electron-packager": "^14.0.6",
+    "electron": "^7.1.14",
+    "electron-packager": "^14.2.1",
     "jest": "^25.1.0"
   },
   "dependencies": {

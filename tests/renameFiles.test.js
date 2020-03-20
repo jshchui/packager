@@ -1,4 +1,5 @@
 const renameFiles = require("../modules/renameFiles.js");
+
 const testBannerDir = __dirname.replace("/tests", "");
 const fs = require("fs");
 
@@ -30,23 +31,23 @@ test("renamed files and folders do NOT contain versions", async () => {
   expect(containsVersion).toBe(0);
 })
 
-afterAll(async (done) => {
-  const randomVersion = Math.floor(Math.random(0, 99) * 100)
-  fs.readdir(`${testBannerDir}/banners`, (err, files) => {
-    for (const file of files) {
-      let upOnePath = `${testBannerDir}/banners`;
-      let currentPath = `${testBannerDir}/banners/${file}`;
+// afterAll(async (done) => {
+//   const randomVersion = Math.floor(Math.random(0, 99) * 100)
+//   fs.readdir(`${testBannerDir}/banners`, (err, files) => {
+//     for (const file of files) {
+//       let upOnePath = `${testBannerDir}/banners`;
+//       let currentPath = `${testBannerDir}/banners/${file}`;
 
-      fs.lstat(currentPath, (err, stats) => {
-        if (err) return console.log(err);
-        if (stats.isDirectory()) {
-          fs.rename(currentPath, `${currentPath}_v${randomVersion}`, err => {
-            if (err) throw err;
-          });
-        }
-      })
-    }
-    console.log('AFTERALL DONE')
-    done();
-  })
-})
+//       fs.lstat(currentPath, (err, stats) => {
+//         if (err) return console.log(err);
+//         if (stats.isDirectory()) {
+//           fs.rename(currentPath, `${currentPath}_v${randomVersion}`, err => {
+//             if (err) throw err;
+//           });
+//         }
+//       })
+//     }
+//     console.log('AFTERALL DONE')
+//     done();
+//   })
+// })

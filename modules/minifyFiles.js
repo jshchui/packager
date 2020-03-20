@@ -13,7 +13,7 @@ const minifyFiles = (path, io) => {
 
       if (fileExtension === "js" || fileExtension === "css") {
         numFilesToMinify++;
-        console.log(`${fileExtension}, numFilesToMinify: `, numFilesToMinify);
+        // console.log(`${fileExtension}, numFilesToMinify: `, numFilesToMinify);
       }
 
       fs.lstat(currentPath, (err, stats) => {
@@ -21,48 +21,25 @@ const minifyFiles = (path, io) => {
         if (stats.isDirectory()) {
           minifyFiles(currentPath, io);
         } else if (fileExtension === "js") {
-          minify({
-            compressor: uglifyjs,
-            input: `${currentPath}`,
-            output: `${currentPath}`,
-            callback: function(err, min) {
-              if (err) console.log("err: ", err);
-              numFilesToMinify--;
-              console.log(
-                "minifying JS completed, files left: ",
-                numFilesToMinify
-              );
-              if (numFilesToMinify === 0) {
-                console.log('i should be emiting from js')
-                if(io) io.emit("minify complete", "Minifying is completed!");
-                numFilesToMinify = 0;
-              }
-              // if(min) console.log('min: ', min);
+          doMinify(currentPath, uglifyjs).then((min, err) => {
+            // if (err) console.log('err: ', err);
+            // console.log('min: ', min)
+            numFilesToMinify--;
+            if (numFilesToMinify === 0) {
+              if(io) io.emit("minify complete", "Minifying is completed!");
+              numFilesToMinify = 0;
             }
-          });
+          })
         } else if (fileExtension === "css") {
-          minify({
-            compressor: cssnano,
-            input: `${currentPath}`,
-            output: `${currentPath}`,
-            callback: function(err, min) {
-              if (err) console.log("err: ", err);
-              numFilesToMinify--;
-              console.log(
-                "minifying CSS completed, files left: ",
-                numFilesToMinify
-              );
-              if (numFilesToMinify === 0) {
-                console.log('i should be emiting from css and io: ', io)
-                if(io) {
-                  console.log('io YAY')
-                  io.emit("minify complete", "Minifying is completed!");
-                }
-                numFilesToMinify = 0;
-              }
-              // if(min) console.log('min: ', min);
+          doMinify(currentPath, cssnano).then((min, err) => {
+            // if (err) console.log('err: ', err);
+            // console.log('min: ', min)
+            numFilesToMinify--;
+            if (numFilesToMinify === 0) {
+              if(io) io.emit("minify complete", "Minifying is completed!");
+              numFilesToMinify = 0;
             }
-          });
+          })
         }
       });
     }
@@ -70,6 +47,17 @@ const minifyFiles = (path, io) => {
 
   return "minifyFiles was called";
 
+};
+
+async function doMinify(currentPath, compressor) {
+  const min = await minify({
+    compressor: compressor,
+    input: `${currentPath}`,
+    output: `${currentPath}`
+  })
+
+  return min;
 }
+
 
 module.exports = minifyFiles;
