@@ -49,6 +49,7 @@ const minifyFiles = (path, io) => {
 
 };
 
+
 async function doMinify(currentPath, compressor) {
   const min = await minify({
     compressor: compressor,
