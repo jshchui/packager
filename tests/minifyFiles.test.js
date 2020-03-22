@@ -2,7 +2,6 @@
 const fs = require("fs")
 const minifyFiles = require("../modules/minifyFiles.js")
 
-
 const testBannerDir = __dirname.replace("/tests", "");
 
 // test("looping through path", async () => {
