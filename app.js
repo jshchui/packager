@@ -220,7 +220,7 @@ function takeScreenshot(win, path, pathToBanners) {
         }
       );
     };
-    win.close();
+    // win.close();
   } else {
     console.log("no screenshot exists");
   }

@@ -4,13 +4,22 @@ var requireScript = document.createElement("script");
 requireScript.src = `${currentDirectory}\\node_modules\\html2canvas\\dist\\html2canvas.js`;
 document.body.appendChild(requireScript);
 
-const banner = document.getElementById("background_exit_dc");
+// container dc only exists in DCS, so if exists, then use that, if not its dcm so use background container dc
+const banner = document.getElementById("container_dc") ? document.getElementById("container_dc") : document.getElementById("background_exit_dc");
 if (isRetinaDisplay()) {
   banner.style.transform = "scale(0.5)";
 }
 
-tl.timeScale(5);
+// tl.timeScale(5);
 // tl.seek(40).pause();
+
+const fastForwardBanner = setInterval(() => {
+  if (tl) {
+    clearInterval(fastForwardBanner);
+    tl.timeScale(5);
+    console.log('clearing interval')
+  }
+}, 1000)
 
 const checkBannerComplete = setInterval(() => {
   if (!tl.isActive()) {
