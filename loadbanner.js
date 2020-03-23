@@ -10,14 +10,10 @@ if (isRetinaDisplay()) {
   banner.style.transform = "scale(0.5)";
 }
 
-// tl.timeScale(5);
-// tl.seek(40).pause();
-
 const fastForwardBanner = setInterval(() => {
   if (tl) {
     clearInterval(fastForwardBanner);
     tl.timeScale(5);
-    console.log('clearing interval')
   }
 }, 1000)
 

@@ -85,6 +85,11 @@ var io;
   });
 
   app.get("/api/openIndex", cors(), async (req, res, next) => {
+    const backupPath = `${pathToBanners}/00_backups`
+    const backupPathExists = fs.existsSync(backupPath)
+    if(!backupPathExists) {
+      fs.mkdirSync(backupPath);
+    }
     openIndex(pathToBanners, pathToBanners);
     // startCapture(displayMediaOptions);
 
@@ -220,7 +225,7 @@ function takeScreenshot(win, path, pathToBanners) {
         }
       );
     };
-    // win.close();
+    win.close();
   } else {
     console.log("no screenshot exists");
   }
