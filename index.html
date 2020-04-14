@@ -7,7 +7,7 @@
   </head>
   <body onload="ping()">
     <div class="container">
-        <h1>Packager V7</h1>
+        <h1>Packager V8</h1>
         <div class="banner_path_container" id="banner_path_container">
           <button class="path_to_banners_button" type="button" onclick="setBannerPath()">Set Banner Path</button>
           <p id="path_to_banners" class="path_to_banners">Path to banners not set</p>
@@ -17,6 +17,7 @@
           <button type="button" onclick="doRename()">Remove Versions</button>
           <button type="button" onclick="doKrakenPngs()">Kraken PNGs</button>
           <button type="button" onclick="doOpenIndex()">Generate Backups</button>
+          <button type="button" onclick="doValidateBuilds()">Check Meta Tags</button>
         </div>
 
         <p id="log" class="log"></p>
@@ -56,6 +57,33 @@
 
         if (errors) console.log('errors: ', errors)
         document.getElementById('log').innerHTML = `Response: ${krakenResponse}`;
+      })
+
+      socket.on('validation complete', (msg) => {
+        console.log("RESPONSE FROM VALIDATION FUNCTION")
+        console.log('msg: ', msg)
+        let response;
+        const errorBuilds = msg && msg.errors.map(error => error);
+        if (errorBuilds.length > 0) {
+          response = `
+            Mismatch Found!
+            ${
+              errorBuilds.map(message => {
+                return `
+                  <div class="error_container">
+                    <h4 class="error_title">Path: ${message.path}</h4>
+                    <p><span class="error_size">Build Size:</span> ${message.indexName}</p>
+                    <p><span class="error_size">Meta Size:</span> ${message.meta}</p>
+                  </div>
+                `
+              }).join('')
+            }
+          `
+        } else {
+          response = `There were no mismatches between build name and meta tags`
+        }
+
+        document.getElementById('log').innerHTML = `Response: ${response}`;
       })
 
       function setBannerPath() {
@@ -111,8 +139,17 @@
       }
 
       doOpenIndex = async () => {
-        console.log('krakening');
+        console.log('opening index');
         const response = await fetch(`http://localhost:3000/api/openIndex`)
+        const message = await response.json()
+        console.log('message from backend: ', message);
+        const responseMessage = message;
+        document.getElementById('log').innerHTML = `Response: ${responseMessage.message}`;
+      }
+
+      doValidateBuilds = async () => {
+        console.log('validating builds')
+        const response = await fetch(`http://localhost:3000/api/validateBuilds`)
         const message = await response.json()
         console.log('message from backend: ', message);
         const responseMessage = message;

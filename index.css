@@ -47,3 +47,22 @@ button {
     padding: 10px;
     margin: 5px;
 }
+
+.error_container {
+    border-bottom: solid 1px grey;
+    padding: 5px;
+    box-sizing: border-box;
+    text-align: left;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.error_size {
+    font-weight: bolder;
+}
+
+.error_title {
+    grid-column-start: 1;
+    grid-column-end: 3;
+}
