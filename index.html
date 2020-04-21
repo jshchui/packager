@@ -53,11 +53,37 @@
       socket.on('kraken complete', (msg) => {
         console.log("RESPONSE FROM KRAKEN FUNCTION")
         console.log('msg: ', msg)
-        const krakenResponse = msg && msg.message;
-        const errors = msg && msg.errors;
+        let response;
+        const errorBuilds = msg && msg.errors;
 
-        if (errors) console.log('errors: ', errors)
-        document.getElementById('log').innerHTML = `Response: ${krakenResponse}`;
+        if (errorBuilds.length > 0) {
+          response = `
+            Kraken Complete but there were errors!
+            ${
+              errorBuilds.map(message => {
+                // this may need to be cleaned up in the future
+                // message.errorMessage is usually for errors that occur during downloads
+                let errorMessage;
+                if (message && message.errorMessage) {
+                  errorMessage = message.errorMessage
+                } else {
+                  errorMessage = message && message.error
+                }
+
+                return `
+                  <div class="kraken_error_container">
+                    <h4 class="error_title">Path: ${message.path}/${message.fileName ? message.fileName : ''}</h4>
+                    <p>${errorMessage}</p>
+                  </div>
+                `
+              }).join('')
+            }
+          `
+        } else {
+          response = `Kraken Completed with no errors!` 
+        }
+
+        document.getElementById('log').innerHTML = `Response: ${response}`;
       })
 
       socket.on('validation complete', (msg) => {

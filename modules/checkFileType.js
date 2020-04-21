@@ -33,7 +33,6 @@ const countFiles = (path) => {
 
 const checkFileType = (path, io) => {
   if(!filesToCheckInitiated) {
-    console.log('counting filesOIJFDSOIFJOSIDJFOISDJFOI')
     countFiles(path);
     filesToCheckInitiated = true;
   }

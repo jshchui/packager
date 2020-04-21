@@ -48,6 +48,13 @@ button {
     margin: 5px;
 }
 
+.kraken_error_container {
+    border-bottom: solid 1px grey;
+    padding: 5px;
+    box-sizing: border-box;
+    text-align: left;
+}
+
 .error_container {
     border-bottom: solid 1px grey;
     padding: 5px;
