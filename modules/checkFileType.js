@@ -12,7 +12,7 @@ let typeMismatches = []
 
 const countFiles = (path) => {
   fs.readdir(path, (err, files) => {
-     const filterFiles = files.filter(file => {
+    const filterFiles = files.filter(file => {
       const extension = file.split('.').pop();
       return  ['png', 'jpg'].includes(extension);
     })

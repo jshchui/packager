@@ -11,9 +11,41 @@ const kraken = new Kraken({
   api_secret: process.env.KRAKEN_API_SECRET
 });
 
+let filesToKrakenCheckInitiated = false;
+let krakenErrors = [];
+let filesToKraken = 0;
+let filesChecked = 0;
+
+
+const countFilesToKraken = (path) => {
+  fs.readdir(path, (err, files) => {
+    const filterFiles = files.filter(file => {
+      const extension = file.split('.').pop();
+      return  ['png', 'PNG'].includes(extension);
+    })
+    console.log('filterFiles: ', filterFiles)
+
+    filesToKraken += filterFiles.length;
+
+    for (const file of files) {
+      let currentPath = `${path}/${file}`;
+      
+      fs.lstat(currentPath, (err, stats) => {
+        if (stats.isDirectory()) {
+          countFilesToKraken(currentPath);
+        }
+      })
+    }
+  })
+}
+
 async function krakenPngs(path, io) {
-  let filesToKraken = 0;
-  let krakenErrors = [];
+
+  if(!filesToKrakenCheckInitiated) {
+    countFilesToKraken(path);
+    filesToKrakenCheckInitiated = true;
+  }
+
   fs.readdir(path, (err, files) => {
     for (const file of files) {
       let upOnePath = `${path}`;
@@ -25,8 +57,8 @@ async function krakenPngs(path, io) {
         if (stats.isDirectory()) {
           krakenPngs(currentPath, io);
         } else if (fileExtension === "png" || fileExtension === "PNG") {
-          filesToKraken++;
-          console.log(`${fileExtension}, filesToKrkaen: `, filesToKraken);
+          // filesToKraken++;
+          // console.log(`${fileExtension}, filesToKrkaen: `, filesToKraken);
 
           var opts = {
             file: currentPath,
@@ -42,10 +74,10 @@ async function krakenPngs(path, io) {
                 error: err,
                 path: path
               };
-              filesToKraken--;
-              console.log(`${fileExtension}, filesToKrkaen: `, filesToKraken);
+              filesChecked++;
+              console.log(`${fileExtension}, filesToKrkaen ERROR : `, filesToKraken);
 
-              if (filesToKraken === 0) {
+              if (filesChecked === filesToKraken) {
                 if (io) {
                   io.emit("kraken complete", {
                     errors: krakenErrors,
@@ -56,16 +88,18 @@ async function krakenPngs(path, io) {
                 }
 
                 filesToKraken = 0;
+                filesChecked = 0
                 krakenErrors = [];
+                filesToKrakenCheckInitiated
               }
             } else {
-              console.log("Success. Optimized image URL: %s", data.kraked_url);
-              console.log("currentPath: ", currentPath);
-              filesToKraken--;
-              console.log(`${fileExtension}, filesToKrkaen: `, filesToKraken);
+              // console.log("Success. Optimized image URL: %s", data.kraked_url);
+              // console.log("currentPath: ", currentPath);
+              filesChecked++;
+              console.log(`${fileExtension}, filesToKraken GOOD: `, filesToKraken);
 
               download(data.kraked_url, currentPath);
-              if (filesToKraken === 0) {
+              if (filesChecked === filesToKraken) {
                 if (io) {
                   io.emit("kraken complete", {
                     errors: krakenErrors,
@@ -76,7 +110,9 @@ async function krakenPngs(path, io) {
                 }
 
                 filesToKraken = 0;
+                filesChecked = 0
                 krakenErrors = [];
+                filesToKrakenCheckInitiated
               }
             }
           });
@@ -92,12 +128,12 @@ function download(url, dest) {
     const file = fs.createWriteStream(dest);
 
     const request = http.get(url, response => {
-      console.log("response code: ", response.statusCode);
+      // console.log("response code: ", response.statusCode);
       if (response.statusCode === 200) {
         response.pipe(file);
       } else {
         file.close();
-        console.log("unlinking file, status code was not 200");
+        console.log("DOWNLOAD... unlinking file, status code was not 200");
         // fs.unlink(dest, () => {}); // Delete temp file
         reject(
           `Server responded with ${response.statusCode}: ${response.statusMessage}`
@@ -106,25 +142,37 @@ function download(url, dest) {
     });
 
     request.on("error", err => {
-      console.log("error on request");
+      console.log("DOWNLOAD... error on request");
+      krakenErrors.push = {
+        error: err,
+        path: dest
+      };
       file.close();
       // fs.unlink(dest, () => {}); // Delete temp file
       reject(err.message);
     });
 
     file.on("finish", () => {
-      console.log("finish");
+      console.log("DOWNLOAD... file on FINISH");
       resolve();
     });
 
     file.on("error", err => {
-      console.log("error on file");
+      console.log("DOWNLOAD... error on file");
+      krakenErrors.push = {
+        error: err,
+        path: dest
+      };
       file.close();
 
       if (err.code === "EEXIST") {
-        reject("File already exists");
+        reject("DOWNLAOD... ile already exists");
       } else {
-        console.log("error on file deleting temp file");
+        krakenErrors.push = {
+          error: err,
+          path: dest
+        };
+        console.log("DOWNLOAD... error on file deleting temp file");
         // fs.unlink(dest, () => {}); // Delete temp file
         reject(err.message);
       }
