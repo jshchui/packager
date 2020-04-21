@@ -18,6 +18,7 @@
           <button type="button" onclick="doKrakenPngs()">Kraken PNGs</button>
           <button type="button" onclick="doOpenIndex()">Generate Backups</button>
           <button type="button" onclick="doValidateBuilds()">Check Meta Tags</button>
+          <button type="button" onclick="doCheckFileType()">Check File Type</button>
         </div>
 
         <p id="log" class="log"></p>
@@ -74,6 +75,33 @@
                     <h4 class="error_title">Path: ${message.path}</h4>
                     <p><span class="error_size">Build Size:</span> ${message.indexName}</p>
                     <p><span class="error_size">Meta Size:</span> ${message.meta}</p>
+                  </div>
+                `
+              }).join('')
+            }
+          `
+        } else {
+          response = `There were no mismatches between build name and meta tags`
+        }
+
+        document.getElementById('log').innerHTML = `Response: ${response}`;
+      })
+
+      socket.on('checkFileType complete', (msg) => {
+        console.log("RESPONSE FROM CHECKFILETYPE FUNCTION")
+        console.log('msg: ', msg)
+        let response;
+        const errorBuilds = msg && msg.mismatches.map(mismatches => mismatches);
+        if (errorBuilds.length > 0) {
+          response = `
+            Mismatch Found!
+            ${
+              errorBuilds.map(message => {
+                return `
+                  <div class="error_container">
+                    <h4 class="error_title">Path: ${message.path}</h4>
+                    <p><span class="error_size">Extension Type:</span> ${message.extensionType}</p>
+                    <p><span class="error_size">Actual File Type:</span> ${message.actualType}</p>
                   </div>
                 `
               }).join('')
@@ -150,6 +178,15 @@
       doValidateBuilds = async () => {
         console.log('validating builds')
         const response = await fetch(`http://localhost:3000/api/validateBuilds`)
+        const message = await response.json()
+        console.log('message from backend: ', message);
+        const responseMessage = message;
+        document.getElementById('log').innerHTML = `Response: ${responseMessage.message}`;
+      }
+
+      doCheckFileType = async () => {
+        console.log('checking files in builds')
+        const response = await fetch(`http://localhost:3000/api/checkFileType`)
         const message = await response.json()
         console.log('message from backend: ', message);
         const responseMessage = message;

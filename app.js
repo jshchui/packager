@@ -4,7 +4,8 @@ var fs = require("fs");
 const renameFiles = require("./modules/renameFiles.js");
 const minifyFiles = require("./modules/minifyFiles.js");
 const krakenFiles = require("./modules/krakenFiles.js");
-const validateBuilds = require("./modules/validateBuilds.js")
+const validateBuilds = require("./modules/validateBuilds.js");
+const checkFileType = require("./modules/checkFileType.js");
 const { downloadAsJPG } = require("./modules/encoder.js");
 
 // we initialize io here so the functions can use it later
@@ -109,6 +110,18 @@ var io;
 
     try {
       const test = "Validate Builds was initiated";
+      res.json({ message: test });
+    } catch (err) {
+      console.log("error: ", err);
+      next(err);
+    }
+  });
+  
+  app.get("/api/checkFileType", cors(), async (req, res, next) => {
+    checkFileType(pathToBanners, io);
+
+    try {
+      const test = "Check File Type was initiated";
       res.json({ message: test });
     } catch (err) {
       console.log("error: ", err);

@@ -5,10 +5,9 @@ let filesChecked = 0;
 const validateData = [];
 
 const validateBuilds = (path, io) => {
-
   // for some reason adding g at the end of regex makes it so that it will detect
   // _v1 but not v2, but if you check v2 first, _v1 will not work
-  let regex = /_v[0-9][0-9]|_v[0-9]/;
+  // let regex = /_v[0-9][0-9]|_v[0-9]/;
   let buildSizeRegex = /([0-9][0-9][0-9]|[0-9][0-9])x([0-9][0-9][0-9]|[0-9][0-9])/g
 
   fs.readdir(path, (err, files) => {
@@ -19,14 +18,18 @@ const validateBuilds = (path, io) => {
         if (err) return console.log(err);
 
         if (stats.isDirectory()) {
-          if (regex.test(file)) {
+          // if (regex.test(file)) {
             // this means that this is a build
             validateBuilds(currentPath, io);
-          }
+          // }
         } else if (stats.isFile()) {
+          // console.log('stats: ', stats)
+          // console.log('file.type: ', file.type)
           let fileExtension = file.split(".").pop();
+          // console.log('fileExtension: ', fileExtension);
           if (fileExtension === "html") {
             indexFilesToCheck += 1;
+            // console.log('indexFilesToChek: ', indexFilesToCheck);
 
             fetch(currentPath)
             .then(response => response.text())
@@ -51,12 +54,16 @@ const validateBuilds = (path, io) => {
 
               filesChecked += 1;
 
+              // console.log('fileschecked: ', filesChecked);
+              // console.log('indexFilesToCheck: ', indexFilesToCheck);
               if (filesChecked === indexFilesToCheck) {
                 if (io) {
                   io.emit("validation complete", {
                     errors: validateData,
                     message: `Number of errors: ${validateData.length}`
                   })
+
+                  validateData = []
                 }
               }
             }).catch(function (err) {
