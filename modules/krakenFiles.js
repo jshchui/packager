@@ -1,10 +1,11 @@
 const http = require("https");
 const fs = require("fs");
 const Kraken = require("kraken");
+require("dotenv").config({path: __dirname + '/.env'});
 
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
-}
+// if (process.env.NODE_ENV !== "production") {
+//   require("dotenv").config();
+// }
 
 const kraken = new Kraken({
   api_key: process.env.KRAKEN_API_KEY,
