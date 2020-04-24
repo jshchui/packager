@@ -1,7 +1,12 @@
 const currentDirectory = document.getElementById("directory").innerHTML;
 
 var requireScript = document.createElement("script");
-requireScript.src = `${currentDirectory}\\node_modules\\html2canvas\\dist\\html2canvas.js`;
+
+const currentDirectoryToArray = currentDirectory.split('/')
+currentDirectoryToArray.pop();
+const rootDirectory = currentDirectoryToArray.join('/')
+
+requireScript.src = `${rootDirectory}\\node_modules\\html2canvas\\dist\\html2canvas.js`;
 document.body.appendChild(requireScript);
 
 // container dc only exists in DCS, so if exists, then use that, if not its dcm so use background container dc
