@@ -1,7 +1,8 @@
 const http = require("https");
 const fs = require("fs");
 const Kraken = require("kraken");
-require("dotenv").config({path: __dirname + '/.env'});
+const envDirectory = __dirname.replace("modules", "") + ".env";
+require("dotenv").config({ path: envDirectory });
 
 // if (process.env.NODE_ENV !== "production") {
 //   require("dotenv").config();
@@ -9,7 +10,7 @@ require("dotenv").config({path: __dirname + '/.env'});
 
 const kraken = new Kraken({
   api_key: process.env.KRAKEN_API_KEY,
-  api_secret: process.env.KRAKEN_API_SECRET
+  api_secret: process.env.KRAKEN_API_SECRET,
 });
 
 let filesToKrakenCheckInitiated = false;
@@ -17,31 +18,29 @@ let krakenErrors = [];
 let filesToKraken = 0;
 let filesChecked = 0;
 
-
 const countFilesToKraken = (path) => {
   fs.readdir(path, (err, files) => {
-    const filterFiles = files.filter(file => {
-      const extension = file.split('.').pop();
-      return  ['png', 'PNG'].includes(extension);
-    })
+    const filterFiles = files.filter((file) => {
+      const extension = file.split(".").pop();
+      return ["png", "PNG"].includes(extension);
+    });
 
     filesToKraken += filterFiles.length;
 
     for (const file of files) {
       let currentPath = `${path}/${file}`;
-      
+
       fs.lstat(currentPath, (err, stats) => {
         if (stats.isDirectory()) {
           countFilesToKraken(currentPath);
         }
-      })
+      });
     }
-  })
-}
+  });
+};
 
 async function krakenPngs(path, io) {
-
-  if(!filesToKrakenCheckInitiated) {
+  if (!filesToKrakenCheckInitiated) {
     countFilesToKraken(path);
     filesToKrakenCheckInitiated = true;
   }
@@ -57,20 +56,19 @@ async function krakenPngs(path, io) {
         if (stats.isDirectory()) {
           krakenPngs(currentPath, io);
         } else if (fileExtension === "png" || fileExtension === "PNG") {
-
           var opts = {
             file: currentPath,
             wait: true,
-            lossy: true
+            lossy: true,
           };
 
-          kraken.upload(opts, function(err, data) {
+          kraken.upload(opts, function (err, data) {
             if (err) {
               krakenErrors.push({
                 fileName: file,
                 error: err.toString(),
-                path: path
-              })
+                path: path,
+              });
               filesChecked++;
 
               if (filesChecked === filesToKraken) {
@@ -79,15 +77,14 @@ async function krakenPngs(path, io) {
                     errors: krakenErrors,
                     message: `Kraken is completed${
                       krakenErrors.length ? " but there were errors" : "!"
-                    }`
+                    }`,
                   });
                 }
 
-                console.log('krakenErrors on Error: ', krakenErrors)
-
+                console.log("krakenErrors on Error: ", krakenErrors);
 
                 filesToKraken = 0;
-                filesChecked = 0
+                filesChecked = 0;
                 krakenErrors = [];
                 filesToKrakenCheckInitiated = false;
               }
@@ -103,13 +100,13 @@ async function krakenPngs(path, io) {
                     errors: krakenErrors,
                     message: `Kraken is completed${
                       krakenErrors.length ? " but there were errors" : "!"
-                    }`
+                    }`,
                   });
                 }
-                console.log('krakenErrors on Download: ', krakenErrors)
+                console.log("krakenErrors on Download: ", krakenErrors);
 
                 filesToKraken = 0;
-                filesChecked = 0
+                filesChecked = 0;
                 krakenErrors = [];
                 filesToKrakenCheckInitiated = false;
               }
@@ -126,7 +123,7 @@ function download(url, dest) {
     // const file = fs.createWriteStream(dest, { flags: "wx" });
     const file = fs.createWriteStream(dest);
 
-    const request = http.get(url, response => {
+    const request = http.get(url, (response) => {
       // console.log("response code: ", response.statusCode);
       if (response.statusCode === 200) {
         response.pipe(file);
@@ -140,15 +137,15 @@ function download(url, dest) {
       }
     });
 
-    request.on("error", err => {
+    request.on("error", (err) => {
       console.log("DOWNLOAD... error on request");
       krakenErrors.push({
         error: err,
         errorMessage: err && err.message,
-        path: dest
+        path: dest,
       });
 
-      console.log('krakenErrors right after error on request: ', krakenErrors)
+      console.log("krakenErrors right after error on request: ", krakenErrors);
       file.close();
       // fs.unlink(dest, () => {}); // Delete temp file
       reject(err.message);
@@ -159,14 +156,14 @@ function download(url, dest) {
       resolve();
     });
 
-    file.on("error", err => {
+    file.on("error", (err) => {
       console.log("DOWNLOAD... error on file");
       krakenErrors.push({
         error: err,
         errorMessage: err && err.message,
 
-        path: dest
-      })
+        path: dest,
+      });
       file.close();
 
       if (err.code === "EEXIST") {
@@ -176,8 +173,8 @@ function download(url, dest) {
           error: err,
           errorMessage: err && err.message,
 
-          path: dest
-        })
+          path: dest,
+        });
         console.log("DOWNLOAD... error on file deleting temp file");
         // fs.unlink(dest, () => {}); // Delete temp file
         reject(err.message);
