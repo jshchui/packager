@@ -1,6 +1,68 @@
 const fs = require("fs");
 const { downloadAsJPG } = require("./encoder.js");
 
+// backup queuing functionality ------------------------- BEGIN
+let backupQueueInterval = null;
+let backupProcessingAmount = 0;
+// let clearAfter = 0
+const backupQueue = new Proxy([], {
+  set: (obj, prop, value) => {
+    console.log('prop: ', prop)
+    obj[prop] = value;
+    if (prop === 'length') {
+      if(value === 0) {
+        // remove interval
+        clearInterval(backupQueueInterval)
+        backupQueueInterval = null;
+
+        console.log('remove interval: ', backupQueueInterval)
+      }
+
+      if(value > 0) { 
+        if(!backupQueueInterval) {
+          backupQueueInterval = setInterval(() => {
+            console.log('tick')
+            console.log('backupProcessingAmount: ', backupProcessingAmount)
+            console.log('backupprocessingQueue: ', backupQueue)
+            while(backupProcessingAmount > 0 && backupProcessingAmount < 3) {
+              backupProcessingAmount++;
+              if(backupQueue.length > 0) {
+                let currentPath = backupQueue[0].currentPath;
+                let pathToBanners = backupQueue[0].pathToBanners;
+                newWindow(currentPath, pathToBanners);
+
+                backupQueue.shift();
+              }
+            }
+
+            // if nothing is processsing but there is still osmething in the queue
+            if(backupProcessingAmount === 0 && backupQueue.length) {
+              let currentPath = backupQueue[0].currentPath;
+              let pathToBanners = backupQueue[0].pathToBanners;
+              backupProcessingAmount++;
+              newWindow(currentPath, pathToBanners);
+              backupQueue.shift();
+
+            }
+            
+            console.log('backupQueueInterval: ', backupQueueInterval)
+            console.log('----------')
+          }, 1000)
+        }
+        // set an interval if there isnt one already
+      }
+      console.log('value: ', value)
+      
+    //   console.log(`array length changed to ${value}`);
+    // } else {
+    //   console.log(`set index ${prop} to ${value}`);
+    }
+    console.log('-------')
+    return true;
+  }
+})
+// backup queuing functionality ------------------------- END
+
 
 function openIndex(path, pathToBanners) {
   fs.readdir(path, (err, files) => {
@@ -14,9 +76,13 @@ function openIndex(path, pathToBanners) {
         } else if (fileExtension === "html") {
           console.log(`html file: ${file}, path: ${currentPath}`);
 
+          backupQueue.push({
+            currentPath,
+            pathToBanners
+          })
 
           // this opens new window
-          newWindow(currentPath, pathToBanners);
+          // newWindow(currentPath, pathToBanners);
         }
       });
     }
@@ -121,6 +187,8 @@ function takeScreenshot(win, path, pathToBanners) {
         }
       );
     };
+    backupProcessingAmount--; // by now screenshot should be taken, reduce processing amount to make room for another banner to generate backups
+
     win.close();
   } else {
     console.log("no screenshot exists");
