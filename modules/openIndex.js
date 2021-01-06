@@ -14,6 +14,8 @@ function openIndex(path, pathToBanners) {
         } else if (fileExtension === "html") {
           console.log(`html file: ${file}, path: ${currentPath}`);
 
+
+          // this opens new window
           newWindow(currentPath, pathToBanners);
         }
       });
