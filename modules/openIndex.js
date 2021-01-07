@@ -14,17 +14,15 @@ const backupQueue = new Proxy([], {
         // remove interval
         clearInterval(backupQueueInterval)
         backupQueueInterval = null;
-
-        console.log('remove interval: ', backupQueueInterval)
+        console.log('removed queue checking interval')
       }
 
       if(value > 0) { 
         if(!backupQueueInterval) {
           backupQueueInterval = setInterval(() => {
-            console.log('tick')
-            console.log('backupProcessingAmount: ', backupProcessingAmount)
-            console.log('backupprocessingQueue: ', backupQueue)
-            while(backupProcessingAmount > 0 && backupProcessingAmount < 3) {
+            // console.log('backupProcessingAmount: ', backupProcessingAmount)
+            console.log('backupprocessingQueueLength: ', backupQueue.length)
+            while(backupProcessingAmount > 0 && backupProcessingAmount < 5) {
               backupProcessingAmount++;
               if(backupQueue.length > 0) {
                 let currentPath = backupQueue[0].currentPath;
@@ -44,20 +42,15 @@ const backupQueue = new Proxy([], {
               backupQueue.shift();
 
             }
-            
-            console.log('backupQueueInterval: ', backupQueueInterval)
-            console.log('----------')
           }, 1000)
         }
         // set an interval if there isnt one already
       }
-      console.log('value: ', value)
       
     //   console.log(`array length changed to ${value}`);
     // } else {
     //   console.log(`set index ${prop} to ${value}`);
     }
-    console.log('-------')
     return true;
   }
 })
