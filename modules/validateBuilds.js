@@ -2,13 +2,13 @@ var fs = require("fs");
 
 let indexFilesToCheck = 0;
 let filesChecked = 0;
-const validateData = [];
+let validateData = [];
 
 const validateBuilds = (path, io) => {
   // for some reason adding g at the end of regex makes it so that it will detect
   // _v1 but not v2, but if you check v2 first, _v1 will not work
   // let regex = /_v[0-9][0-9]|_v[0-9]/;
-  let buildSizeRegex = /([0-9][0-9][0-9]|[0-9][0-9])x([0-9][0-9][0-9]|[0-9][0-9])/g
+  let buildSizeRegex = /([0-9][0-9][0-9][0-9]|[0-9][0-9][0-9]|[0-9][0-9])x([0-9][0-9][0-9][0-9]|[0-9][0-9][0-9]|[0-9][0-9])/g
 
   fs.readdir(path, (err, files) => {
     for(const file of files) {
@@ -62,7 +62,6 @@ const validateBuilds = (path, io) => {
                     errors: validateData,
                     message: `Number of errors: ${validateData.length}`
                   })
-
                   validateData = []
                 }
               }
