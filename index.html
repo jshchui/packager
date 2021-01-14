@@ -29,7 +29,8 @@
                   <label class="generate_root_path_label" for="generate_root_path_checked">Generate backups to root path only</label><br>
                 </div>
               </div>
-              <button type="button" onclick="doValidateBuilds()">Check Meta Tags</button>
+              <button type="button" onclick="doKrakenPngs()">Kraken PNGs</button>
+
             </div>
           </div>
 
@@ -37,7 +38,8 @@
             <h3>Validation</h3>
             <div class="buttons_container">
               <button type="button" onclick="doCheckFileType()">Check File Type</button>
-              <button type="button" onclick="doKrakenPngs()">Kraken PNGs</button>
+              <button type="button" onclick="doValidateBuilds()">Check Meta Tags</button>
+
             </div>
           </div>
 
@@ -158,7 +160,7 @@
             }
           `
         } else {
-          response = `There were no mismatches between build name and meta tags`
+          response = `There were no mismatches between image file type and image extension.`
         }
 
         document.getElementById('log').innerHTML = `Response: ${response}`;

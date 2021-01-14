@@ -54,7 +54,7 @@ body {
 }
 
 .path_to_banners_button {
-    background: var(--light-grey);
+    background: #fff;
     color: var(--dark-grey);
     width: 30%;
     padding: 13px;
