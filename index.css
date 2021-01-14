@@ -1,6 +1,24 @@
+:root {
+    --dark-red: #be1e2d;
+    --light-red: #e13e52;
+    --light-blue: #1c75bc;
+    --light-grey: #e6e7e8;
+    --dark-grey: #414042;
+}
+
 body {
     font-family: "Helvetica", sans-serif;
+    font-weight: bold;
     margin: 0;
+}
+
+.header_top {
+    display: flex;
+    align-items: center;
+}
+
+.header_title {
+    flex-grow: 3;
 }
 
 .container {
@@ -9,43 +27,80 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
 }
 
 .log {
-    /* margin: 2em; */
+    margin: 0;
+    background: var(--light-grey);
+    width: 100%;
     font-size: 12px;
-    max-width: 500px;
-    margin: 20px;
-    text-align: center;
+    padding: 15px 30px 15px 30px;
+    box-sizing: border-box;
 }
 
 .banner_path_container {
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     align-items: center;
 }
 
 .path_to_banners {
+    background: var(--light-red);
+    width: 100%;
     font-size: 12px;
+    padding: 1.5em;
+    border-radius: 10px;
 }
 
 .path_to_banners_button {
-    width: 50%;
+    background: var(--light-grey);
+    color: var(--dark-grey);
+    width: 30%;
+    padding: 13px;
 }
 
 .button_container {
     display: flex;
-    flex-wrap: wrap;
+    padding: 15px 30px 15px 30px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
     justify-content: center;
 }
 
+.button_container_content {
+    display: flex;
+    width: 100%;
+    /* justify-content: space-between; */
+    flex-direction: column;
+    padding-right: 1em;
+}
+
 button {
-    width: 50%;
-    background: #fff;
-    border: solid 1px black;
+    width: 100%;
+    /* background: #fff; */
+    background: var(--light-red);
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 20px;
     padding: 10px;
-    margin: 5px;
+    box-sizing: border-box;
+}
+
+.actions_container button {
+    margin: 10px 0 0 0;
+
+}
+
+.validate_container button {
+    background: var(--light-blue);
+    margin: 10px 0 0 0;
+}
+
+.buttons_container {
+
 }
 
 .kraken_error_container {
@@ -72,4 +127,24 @@ button {
 .error_title {
     grid-column-start: 1;
     grid-column-end: 3;
+}
+
+.header {
+    background: var(--dark-red);
+    padding: 30px;
+    box-sizing: border-box;
+    width: 100%;
+
+    color: #fff;
+}
+
+.generate_root_path_label {
+    font-size: 10px;
+}
+
+.button_checkbox {
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

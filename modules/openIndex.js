@@ -4,6 +4,7 @@ const { downloadAsJPG } = require("./encoder.js");
 // backup queuing functionality ------------------------- BEGIN
 let backupQueueInterval = null;
 let backupProcessingAmount = 0;
+let generateBackUpsToRoot = false;
 // let clearAfter = 0
 const backupQueue = new Proxy([], {
   set: (obj, prop, value) => {
@@ -57,7 +58,13 @@ const backupQueue = new Proxy([], {
 // backup queuing functionality ------------------------- END
 
 
-function openIndex(path, pathToBanners) {
+function openIndex(path, pathToBanners, generateToRootChecked) {
+  if(generateToRootChecked) {
+    generateBackUpsToRoot = true;
+  } else {
+    generateBackUpsToRoot = false;
+  }
+
   fs.readdir(path, (err, files) => {
     for (const file of files) {
       let currentPath = `${path}/${file}`;
@@ -65,7 +72,7 @@ function openIndex(path, pathToBanners) {
 
       fs.lstat(currentPath, (err, stats) => {
         if (stats.isDirectory()) {
-          openIndex(currentPath, pathToBanners);
+          openIndex(currentPath, pathToBanners, generateToRootChecked);
         } else if (fileExtension === "html") {
           console.log(`html file: ${file}, path: ${currentPath}`);
 
@@ -165,6 +172,18 @@ function takeScreenshot(win, path, pathToBanners) {
     const splitPathArray = path && path.split("/");
     const splitPathName = splitPathArray[splitPathArray.length - 2];
 
+    // path of the route for the specific build
+    const splitPathRoute = splitPathArray.slice(0, splitPathArray.length - 2).join('/')
+
+    // if route backup path doesn't exist, make a 00_backups folder in the route backup path;
+    if(!generateBackUpsToRoot) {
+      const routeBackupPath = `${splitPathRoute}/00_backups`
+      const routeBackupPathExists = fs.existsSync(routeBackupPath)
+      if(!routeBackupPathExists) {
+        fs.mkdirSync(routeBackupPath);
+      }
+    }
+
     // convert blob back to base64data
     var reader = new FileReader();
     reader.readAsDataURL(newImg.blob);
@@ -172,7 +191,7 @@ function takeScreenshot(win, path, pathToBanners) {
       var base64data = reader.result;
       var baseData = base64data.replace(/^data:image\/(png|jpeg);base64,/, "");
       fs.writeFile(
-        `${pathToBanners}/00_backups/${splitPathName}_backup.jpg`, // it was `./backups/image_${adNumber}.jpg`, before
+        `${generateBackUpsToRoot ? pathToBanners : splitPathRoute}/00_backups/${splitPathName}_backup.jpg`, // it was `./backups/image_${adNumber}.jpg`, before
         baseData,
         "base64",
         function(err) {

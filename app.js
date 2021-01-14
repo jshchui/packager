@@ -87,13 +87,22 @@ var io;
     }
   });
 
-  app.get("/api/openIndex", cors(), async (req, res, next) => {
-    const backupPath = `${pathToBanners}/00_backups`
-    const backupPathExists = fs.existsSync(backupPath)
-    if(!backupPathExists) {
-      fs.mkdirSync(backupPath);
+  app.post("/api/openIndex", cors(), async (req, res, next) => {
+    let generateToRootChecked;
+    if (req.body && req.body.generateBackUpsToRootChecked) {
+      generateToRootChecked = req.body.generateBackUpsToRootChecked;
+      console.log('generate root cheecked: ', req.body.generateBackUpsToRootChecked);
     }
-    openIndex(pathToBanners, pathToBanners);
+
+
+    if(generateToRootChecked) {
+      const backupPath = `${pathToBanners}/00_backups`
+      const backupPathExists = fs.existsSync(backupPath)
+      if(!backupPathExists) {
+        fs.mkdirSync(backupPath);
+      }
+    }
+    openIndex(pathToBanners, pathToBanners, generateToRootChecked);
     // startCapture(displayMediaOptions);
 
     try {
