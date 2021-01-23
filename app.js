@@ -7,6 +7,7 @@ const krakenFiles = require("./modules/krakenFiles.js");
 const validateBuilds = require("./modules/validateBuilds.js");
 const checkFileType = require("./modules/checkFileType.js");
 const openIndex = require("./modules/openIndex.js");
+const findUnusedImages = require("./modules/findUnusedImages.js")
 
 // we initialize io here so the functions can use it later
 var io;
@@ -138,6 +139,20 @@ var io;
     }
   });
 
+  app.get("/api/findUnusedImages", cors(), async (req, res, next) => {
+    const unusedImageData = await findUnusedImages(pathToBanners, io)
+    // console.log('unusedImageData: ', unusedImageData)
+    try {
+      const test = "Find unused Images was initiated";
+      res.json({ 
+        message: test,
+        unusedImageData
+      });
+    } catch (err) {
+      console.log("error: ", err);
+      next(err);
+    }
+  });
   // app.get('/api/ping/', cors(), async(req, res, next) => {
   app.post("/api/ping/", cors(), async (req, res) => {
     if (req.body && req.body.path) pathToBanners = req.body.path;

@@ -2,14 +2,14 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Packager V10</title>
+    <title>Packager V10.1</title>
     <link rel="stylesheet" href="index.css">
   </head>
   <body onload="ping()">
     <div class="container">
       <div id="header" class="header">
         <div id="header_top" class="header_top">
-          <h1 class="header_title">Packager V10</h1>
+          <h1 class="header_title">Packager V10.1</h1>
           <button class="path_to_banners_button" type="button" onclick="setBannerPath()">Set Banner Path</button>
         </div>
         <div class="banner_path_container" id="banner_path_container">
@@ -39,6 +39,7 @@
             <div class="buttons_container">
               <button type="button" onclick="doCheckFileType()">Check File Type</button>
               <button type="button" onclick="doValidateBuilds()">Check Meta Tags</button>
+              <button type="button" onclick="doFindUnusedImages()">Find Unused Images</button>
 
             </div>
           </div>
@@ -248,6 +249,42 @@
         console.log('message from backend: ', message);
         const responseMessage = message;
         document.getElementById('log').innerHTML = `Response: ${responseMessage.message}`;
+      }
+
+      doFindUnusedImages = async () => {
+        console.log('finding unused images')
+        const response = await fetch(`http://localhost:3000/api/findUnusedImages`)
+        const message = await response.json()
+        console.log('message from backend: ', message);
+        const responseMessage = message;
+        document.getElementById('log').innerHTML = `Response: ${responseMessage.message}`;
+
+
+
+        let responseData;
+        const unusedImageBuild = message && message.unusedImageData.map(data => data);
+        if (unusedImageBuild.length > 0) {
+          responseData = `
+            Unused Images Found!
+            ${
+              unusedImageBuild.map(message => {
+                return `
+                  <div class="unused_image_container">
+                    <h4 class="error_title">Path: ${message.buildPath}</h4>
+                    ${
+                      message && message.unusedImagesArray.map(image => {
+                        return `<p><span class="error_size">image path:</span> ${image}</p>`
+                      }).join('')
+                    }
+                  </div>
+                `
+              }).join('')
+            }
+          `
+        } else {
+          responseData = `There were no unused images`
+        }
+        document.getElementById('log').innerHTML = `Response: ${responseData}`;
       }
     </script>
   </body>

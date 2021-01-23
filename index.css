@@ -103,7 +103,7 @@ button {
 
 }
 
-.kraken_error_container {
+.kraken_error_container, .unused_image_container {
     border-bottom: solid 1px grey;
     padding: 5px;
     box-sizing: border-box;
