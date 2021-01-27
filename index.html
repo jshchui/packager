@@ -15,6 +15,7 @@
         <div class="banner_path_container" id="banner_path_container">
           <p id="path_to_banners" class="path_to_banners">Path to banners not set</p>
         </div>
+        <div id="banner_path_logs"></div>
       </div>
         <div class="button_container">
           <div id="actions_container" class="actions_container button_container_content">
@@ -61,8 +62,17 @@
       // var ipcRenderer = require('electron').ipcRenderer;
 
       ipcRenderer.on('path-data', function (event,path) {
-          const filePath = path && path.filePaths && path.filePaths[0]          
-          if(filePath) ping(filePath)
+        const filePath = path && path.filePaths && path.filePaths[0]
+
+        const containsWorkBackup = (filePath && filePath.includes("Work Backup")) || false
+        if(filePath && !containsWorkBackup)ping(filePath)
+
+        if(containsWorkBackup) {
+          document.getElementById('log').innerHTML = `Response: You cannot set a banner path with "Work Backup" in the path`;
+          document.getElementById('banner_path_logs').innerHTML = `You cannot set a banner path with "Work Backup" in the path`;
+        } else {
+          document.getElementById('banner_path_logs').innerHTML = ``;
+        }
       });
 
       socket.on('minify complete', (msg) => {
