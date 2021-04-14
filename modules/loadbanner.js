@@ -10,7 +10,20 @@ requireScript.src = `${rootDirectory}\\node_modules\\html2canvas\\dist\\html2can
 document.body.appendChild(requireScript);
 
 // container dc only exists in DCS, so if exists, then use that, if not its dcm so use background container dc
-const banner = document.getElementById("container_dc") ? document.getElementById("container_dc") : document.getElementById("background_exit_dc");
+// const banner = document.getElementById("container_dc") ? document.getElementById("container_dc") : document.getElementById("background_exit_dc");
+let banner;
+
+if(document.getElementById("container_dc")) { // DCS
+  banner = document.getElementById("container_dc")
+
+} else if (document.getElementById("background_exit_dc")) { // DCM
+  banner = document.getElementById("background_exit_dc")
+
+} else if (document.getElementById("adf-banner")) { // ADFORM 
+  banner = document.getElementById("adf-banner") 
+}
+
+
 if (isRetinaDisplay()) {
   banner.style.transform = "scale(0.5)";
 }
