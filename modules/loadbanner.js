@@ -1,9 +1,17 @@
-const currentDirectory = document.getElementById("directory").innerHTML;
+let operatingSystem = "Unknown OS";
+if (navigator.userAgent.indexOf("Win") != -1) operatingSystem = "Windows OS";
+if (navigator.userAgent.indexOf("Mac") != -1) operatingSystem = "Macintosh";
+if (navigator.userAgent.indexOf("Linux") != -1) operatingSystem = "Linux OS";
+if (navigator.userAgent.indexOf("Android") != -1) operatingSystem = "Android OS";
+if (navigator.userAgent.indexOf("like Mac") != -1) operatingSystem = "iOS";
 
+const currentDirectory = document.getElementById("directory").innerHTML;
 var requireScript = document.createElement("script");
 
-const currentDirectoryToArray = currentDirectory.split('/')
+// html2canvas was not working on windows because windows uses '\' and mac uses '/'
+const currentDirectoryToArray = currentDirectory.split(operatingSystem === 'Windows OS' ? '\\' : '/')
 currentDirectoryToArray.pop();
+
 const rootDirectory = currentDirectoryToArray.join('/')
 
 requireScript.src = `${rootDirectory}\\node_modules\\html2canvas\\dist\\html2canvas.js`;
