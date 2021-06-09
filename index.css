@@ -39,6 +39,10 @@ body {
     box-sizing: border-box;
 }
 
+.log div:nth-child(2) {
+    background: #fff;
+}
+
 .banner_path_container {
     display: flex;
     /* flex-direction: column; */

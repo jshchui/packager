@@ -26,6 +26,18 @@ var io;
 
   var bodyParser = require("body-parser");
 
+  // console.log('dirname: ', `${__dirname}/.env`)
+  require("dotenv").config({ path: `${__dirname}/.env`})
+
+  // console.log('testPath: ', process.env)
+
+  // console.log('testPathKEY: ', process.env.PREVIOUS_FILE_PATH)
+  // process.env.PREVIOUS_FILE_PATH = "CHANGE MEME"
+  // console.log('testPathKEY AFTTER: ', process.env.PREVIOUS_FILE_PATH)
+
+
+
+
   app.use(bodyParser.json());
   app.use(
     bodyParser.urlencoded({
@@ -153,11 +165,20 @@ var io;
       next(err);
     }
   });
+
+
   // app.get('/api/ping/', cors(), async(req, res, next) => {
   app.post("/api/ping/", cors(), async (req, res) => {
-    if (req.body && req.body.path) pathToBanners = req.body.path;
+    if (req.body && req.body.path) {
+      console.log("set from front end")
+      pathToBanners = req.body.path;
+    } else {
+
+    }
 
     let message;
+
+    console.log('PING FROM BACKEND')
 
     try {
       if (pathToBanners) {
