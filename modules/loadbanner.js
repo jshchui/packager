@@ -29,6 +29,12 @@ if(document.getElementById("container_dc")) { // DCS
 
 } else if (document.getElementById("adf-banner")) { // ADFORM 
   banner = document.getElementById("adf-banner") 
+
+} else if (document.getElementById("container")) { // Flash talking 
+  banner = document.getElementById("container") 
+
+} else if (document.getElementById("banner")) { // Sizmek? 
+  banner = document.getElementById("banner") 
 }
 
 
