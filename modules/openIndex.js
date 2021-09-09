@@ -4,6 +4,7 @@ const { downloadAsJPG } = require("./encoder.js");
 // backup queuing functionality ------------------------- BEGIN
 let backupQueueInterval = null;
 let backupProcessingAmount = 0;
+let backupProcessingLimit = 5; // maximum number of windows of backups that can generating at a time.
 let generateBackUpsToRoot = false;
 // let clearAfter = 0
 const backupQueue = new Proxy([], {
@@ -23,7 +24,7 @@ const backupQueue = new Proxy([], {
           backupQueueInterval = setInterval(() => {
             // console.log('backupProcessingAmount: ', backupProcessingAmount)
             console.log('backupprocessingQueueLength: ', backupQueue.length)
-            while(backupProcessingAmount > 0 && backupProcessingAmount < 5) {
+            while(backupProcessingAmount > 0 && backupProcessingAmount < backupProcessingLimit) {
               backupProcessingAmount++;
               if(backupQueue.length > 0) {
                 let currentPath = backupQueue[0].currentPath;

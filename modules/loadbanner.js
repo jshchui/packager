@@ -36,6 +36,7 @@ if(document.getElementById("container_dc")) { // DCS
 } else if (document.getElementById("banner")) { // Sizmek? 
   banner = document.getElementById("banner") 
 }
+  
 
 
 if (isRetinaDisplay()) {
