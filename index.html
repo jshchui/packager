@@ -216,8 +216,24 @@
         const response = await fetch(`http://localhost:3000/api/renameFiles`)
         const message = await response.json()
         console.log('message from backend: ', message);
-        const responseMessage = message;
-        document.getElementById('log').innerHTML = `Response: ${responseMessage.message}`;
+        // const responseMessage = message;
+        // document.getElementById('log').innerHTML = `Response: ${responseMessage.message}`;
+
+        const bannersRename = message.bannersRenamed
+        let responseMessage = `
+            ${
+              bannersRename.map(({ bannerNameBefore, bannerNameAfter }) => {
+                return `
+                  <div class="message_container">
+                    <p><span class="error_size">Renamed:</span> ${bannerNameBefore} to ${bannerNameAfter}</p>
+                  </div>
+                `
+              }).join('')
+            }
+          `
+
+        document.getElementById('log').innerHTML = `Response: ${responseMessage}`;
+
       }
 
       doKrakenPngs = async () => {

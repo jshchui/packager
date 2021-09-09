@@ -3,51 +3,53 @@ const minify = require("@node-minify/core");
 const uglifyjs = require("@node-minify/uglify-js");
 const cssnano = require("@node-minify/cssnano");
 
-const minifyFiles = (path, io) => {
+const minifyFiles = async (path) => {
+  try {
+    const filesToMinify = await findMinifyableFiles(path)
+    // console.log('files to minify: ', filesToMinify)
+    const minifiedFiles = []
 
-  let numFilesToMinify = 0;
-  fs.readdir(path, (err, files) => {
-    for (const file of files) {
-      let currentPath = `${path}/${file}`;
-      let fileExtension = file.split(".").pop();
+    let fileExtension
+    let filePath
+    let minified
 
-      if (fileExtension === "js" || fileExtension === "css") {
-        numFilesToMinify++;
-        // console.log(`${fileExtension}, numFilesToMinify: `, numFilesToMinify);
+    for(const fileInfo of filesToMinify) {
+      fileExtension = fileInfo[0]
+      filePath = fileInfo[1]
+      if(fileExtension === 'js') {
+        minified = await doMinify(filePath, uglifyjs)
+      } else {
+        minified = await doMinify(filePath, cssnano)
       }
 
-      fs.lstat(currentPath, (err, stats) => {
-        if (err) return console.log(err);
-        if (stats.isDirectory()) {
-          minifyFiles(currentPath, io);
-        } else if (fileExtension === "js") {
-          doMinify(currentPath, uglifyjs).then((min, err) => {
-            // if (err) console.log('err: ', err);
-            // console.log('min: ', min)
-            numFilesToMinify--;
-            if (numFilesToMinify === 0) {
-              if(io) io.emit("minify complete", "Minifying is completed!");
-              numFilesToMinify = 0;
-            }
-          })
-        } else if (fileExtension === "css") {
-          doMinify(currentPath, cssnano).then((min, err) => {
-            // if (err) console.log('err: ', err);
-            // console.log('min: ', min)
-            numFilesToMinify--;
-            if (numFilesToMinify === 0) {
-              if(io) io.emit("minify complete", "Minifying is completed!");
-              numFilesToMinify = 0;
-            }
-          })
-        }
-      });
+      minifiedFiles.push(filePath)
     }
-  });
 
-  return "minifyFiles was called";
+    return minifiedFiles
+  } catch (err) {
+    console.log('err: ', err)
+  }
+}
 
-};
+const findMinifyableFiles = async (path) => {
+  let filesToMinify = []
+
+  const files = await fs.readdirSync(path)
+
+  for (const file of files) {
+    const currentPath = `${path}/${file}`
+    const fileExtension = file.split(".").pop()
+    const fileStats = fs.lstatSync(currentPath)
+  
+    if ( fileStats.isDirectory() ) {
+      filesToMinify.push(...await findMinifyableFiles(currentPath))
+    } else if (fileExtension === "js" || fileExtension === "css") {
+      filesToMinify.push([fileExtension, currentPath])
+    }
+  }
+
+  return filesToMinify
+}
 
 
 async function doMinify(currentPath, compressor) {
@@ -56,7 +58,7 @@ async function doMinify(currentPath, compressor) {
     input: `${currentPath}`,
     output: `${currentPath}`
   })
-
+  
   return min;
 }
 

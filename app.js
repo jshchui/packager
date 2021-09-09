@@ -65,11 +65,14 @@ var io;
   });
 
   app.get("/api/minify/", cors(), async (req, res, next) => {
-    const minifyFileValue = await minifyFiles(pathToBanners, io);
+    const filesMinified = await minifyFiles(pathToBanners, io);
 
     try {
       const test = "minifying was initiated";
-      res.json({ message: test });
+      res.json({ 
+        message: test,
+        filesMinified
+      });
     } catch (err) {
       console.log("error: ", err);
       next(err);
@@ -77,11 +80,11 @@ var io;
   });
 
   app.get("/api/renameFiles/", cors(), async (req, res, next) => {
-    const renameFileValue = await renameFiles(pathToBanners, io);
+    const bannersRenamed = await renameFiles(pathToBanners, io);
 
     try {
       const test = "renaming of files was initiated";
-      res.json({ message: test });
+      res.json({ message: test, bannersRenamed });
     } catch (err) {
       console.log("error: ", err);
       next(err);
